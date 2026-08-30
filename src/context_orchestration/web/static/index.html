@@ -263,107 +263,26 @@ input[type=password].filled { border-color: var(--kept); }
 .vrow span { font-family: var(--f-mono); font-size: 10px; color: var(--slate); word-break: break-word; }
 
 /* =========================================================
-   GUIDED DEMO
+   THE DEMO
    ========================================================= */
-.demo { margin-top: 1.75rem; }
 
-.dm-rail {
-  display: flex; overflow-x: auto;
-  border: 1px solid var(--rule-strong); background: var(--panel);
-}
-.dm-tab {
-  flex: 1 0 auto; min-width: 9.5rem; display: flex; align-items: baseline; gap: .5rem;
-  padding: .62rem .9rem; background: transparent; border: 0; border-right: 1px solid var(--rule);
-  cursor: pointer; color: var(--slate); font-family: var(--f-ui); font-size: 12.5px;
-  font-weight: 600; white-space: nowrap; text-align: left;
-}
-.dm-tab:last-child { border-right: 0; }
-.dm-tab:hover { color: var(--ink); }
-.dm-tab .n { font-family: var(--f-mono); font-size: 10px; color: var(--slate-2); }
-.dm-tab.done { color: var(--ink-soft); }
-.dm-tab.done .n { color: var(--kept); }
-.dm-tab.done .n::after { content: " \2713"; }
-.dm-tab[aria-current="true"] { background: var(--paper); color: var(--ink); box-shadow: inset 0 -2px 0 var(--kept); }
-.dm-tab[aria-current="true"] .n { color: var(--kept); }
-.dm-tab .tag { margin-left: auto; font-family: var(--f-mono); font-size: 9.5px; color: var(--slate-2); }
-.dm-tab .tag.ok { color: var(--kept); }
-.dm-tab .tag.warn { color: var(--amber); }
-
-/* One step on screen at a time. The others are not scrolled past, they are
-   not rendered - that crowding was the whole complaint about this section. */
-.dm-step { display: none; padding: 1.9rem 0 0; }
-.dm-step.on { display: block; }
-
-/* Steps 1-3 are setup and read better on one column with the controls beside
-   the instruction; step 4 is the run and needs the full width. */
-.dm-facts details.facts { margin-top: 1.2rem; }
-details.facts { border-top: 1px solid var(--rule); }
-details.facts > summary { cursor: pointer; list-style: none; padding: .6rem 0; font-family: var(--f-ui); font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--slate); display: flex; gap: .5rem; align-items: baseline; }
-details.facts > summary::-webkit-details-marker { display: none; }
-details.facts > summary::before { content: "+"; font-family: var(--f-mono); color: var(--kept); flex: none; }
-details.facts[open] > summary::before { content: "\2212"; }
-details.facts > summary:hover { color: var(--kept); }
-details.facts .dm-facts { margin-top: 0; border-top: 0; }
-.dm-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: clamp(1.25rem, 3vw, 2.5rem); align-items: start; }
-@media (max-width: 900px) { .dm-grid { grid-template-columns: 1fr; } }
-
-.dm-copy h3 { margin: .55rem 0 .65rem; font-size: 1.3rem; letter-spacing: -.015em; }
-.dm-copy p { font-family: var(--f-body); font-size: .98rem; color: var(--ink-soft); max-width: 48ch; }
-.dm-copy p + p { margin-top: .85rem; }
-.dm-facts { margin: 1.2rem 0 0; border-top: 1px solid var(--rule); }
-.dm-facts div { display: grid; grid-template-columns: 9rem 1fr; gap: .8rem; padding: .5rem 0; border-bottom: 1px solid var(--rule); font-size: 12.5px; align-items: baseline; }
-.dm-facts .k { font-family: var(--f-mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--slate); }
-.dm-facts span:last-child { color: var(--ink-soft); font-family: var(--f-ui); }
-@media (max-width: 520px) { .dm-facts div { grid-template-columns: 1fr; gap: .1rem; } }
-
-.dm-panel { border: 1px solid var(--rule-strong); background: var(--panel); }
-.dm-panel .pg-head { background: var(--panel-2); position: static; }
-.dm-nav { margin-top: 2rem; padding-top: 1.1rem; border-top: 1px solid var(--rule-strong); display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
-.dm-nav .btn { width: auto; padding: .55rem 1.2rem; }
-.dm-nav .btn.next { margin-left: auto; }
-.dm-nav .note { font-family: var(--f-ui); font-size: 12px; color: var(--slate); }
-.dm-nav .pos { font-family: var(--f-mono); font-size: 11px; color: var(--slate-2); }
-@media (max-width: 560px) { .dm-nav .btn { flex: 1 1 100%; } .dm-nav .btn.next { margin-left: 0; order: -1; } }
-
-/* ---- assignment preview ---- */
+/* Who takes which step, worked out before anything runs. */
 .asg { border-top: 1px solid var(--rule); }
-.asg-row { display: grid; grid-template-columns: 5.6rem 1fr; gap: .7rem; padding: .5rem .9rem; border-bottom: 1px solid var(--rule); align-items: baseline; font-size: 12.5px; font-family: var(--f-ui); }
+.asg-row { display: grid; grid-template-columns: 5.6rem 1fr; gap: .7rem; padding: .5rem 1.1rem; border-bottom: 1px solid var(--rule); align-items: baseline; font-size: 12.5px; font-family: var(--f-ui); }
 .asg-row:last-child { border-bottom: 0; }
 .asg-w { font-family: var(--f-mono); font-size: 11px; font-weight: 700; color: var(--kept); }
 .asg-t { color: var(--ink-soft); }
 .asg-row.cont .asg-w { color: var(--slate); }
 .asg-row.cont .asg-t { color: var(--slate-2); }
-.asg-none { padding: .7rem .9rem; font-size: 12px; color: var(--slate-2); font-family: var(--f-ui); }
+.asg-none { padding: .7rem 1.1rem; font-size: 12px; color: var(--slate-2); font-family: var(--f-ui); }
 
-/* ---- live run ---- */
-.dm-live { border: 1px solid var(--rule-strong); background: var(--paper); margin-top: 1.6rem; display: none; }
-.dm-live.on { display: block; }
-.lv-stage { padding: clamp(.8rem, 2.5vw, 1.3rem); background: var(--panel); border-bottom: 1px solid var(--rule); overflow-x: auto; }
-.lv-stage svg { min-width: 640px; }
-.lv-node { color: var(--rule-strong); transition: color .2s ease; }
-.lv-node rect { fill: none; stroke: currentColor; stroke-width: 1.2; }
-.lv-node text { fill: var(--slate-2); transition: fill .2s ease; }
-.lv-node.on { color: var(--kept); }
-.lv-node.on rect { fill: var(--kept-bg); stroke-width: 1.8; }
-.lv-node.on text { fill: var(--kept); }
-.lv-node.busy { color: var(--amber); }
-.lv-node.busy rect { fill: none; stroke-width: 1.8; }
-.lv-node.busy text { fill: var(--amber); }
-.lv-node.trust.on { color: var(--dropped); }
-.lv-node.trust.on rect { fill: var(--dropped-bg); }
-.lv-node.trust.on text { fill: var(--dropped); }
-.lv-arrow { color: var(--rule-strong); transition: color .2s ease; }
-.lv-arrow line, .lv-arrow path { stroke: currentColor; stroke-width: 1.4; fill: none; }
-.lv-arrow polygon { fill: currentColor; stroke: none; }
-.lv-arrow.on { color: var(--kept); }
-.lv-arrow.busy { color: var(--amber); }
-@media (prefers-reduced-motion: reduce) { .lv-node, .lv-arrow, .lv-node text { transition: none; } }
-
-.lv-cap { display: flex; align-items: center; gap: .6rem; padding: .6rem 1rem; border-bottom: 1px solid var(--rule); font-family: var(--f-ui); font-size: 13px; background: var(--panel-2); }
+/* One line saying what the engine is doing this second. */
+.lv-cap { display: flex; align-items: center; gap: .6rem; padding: .6rem 1.1rem; border-bottom: 1px solid var(--rule); font-family: var(--f-ui); font-size: 13px; background: var(--panel-2); }
 .lv-cap .what { font-weight: 700; }
 .lv-cap .detail { color: var(--slate); font-family: var(--f-mono); font-size: 11px; margin-left: auto; text-align: right; }
 
-.wrail { display: flex; align-items: center; padding: .6rem 1rem; gap: .3rem; border-bottom: 1px solid var(--rule); overflow-x: auto; }
+/* The five workers, and how far the run has got through them. */
+.wrail { display: flex; align-items: center; padding: .6rem 1.1rem; gap: .3rem; border-bottom: 1px solid var(--rule); overflow-x: auto; }
 .wd { display: flex; align-items: center; gap: .35rem; flex: none; border: 1px solid var(--rule); padding: .22rem .45rem; font-family: var(--f-mono); font-size: 10.5px; color: var(--slate-2); white-space: nowrap; }
 .wd .bullet { width: 6px; height: 6px; border-radius: 50%; background: var(--rule-strong); }
 .wd.active { color: var(--amber); border-color: var(--amber); }
@@ -374,17 +293,9 @@ details.facts .dm-facts { margin-top: 0; border-top: 0; }
 .wd.failed .bullet { background: var(--dropped); }
 .wd-link { flex: 1 0 10px; height: 1px; background: var(--rule); min-width: 6px; }
 
-.lv-cols { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); }
-@media (max-width: 940px) { .lv-cols { grid-template-columns: 1fr; } }
-.lv-col { min-height: 0; max-height: 600px; overflow-y: auto; }
-.lv-col + .lv-col { border-left: 1px solid var(--rule); }
-@media (max-width: 940px) { .lv-col + .lv-col { border-left: 0; border-top: 1px solid var(--rule); } }
-.lv-col .pg-head { background: var(--paper); }
-.lv-col:last-child .pg-head { background: var(--panel); }
-.lv-col:last-child { background: var(--panel); }
-
-.runline { display: flex; align-items: center; gap: .6rem; }
-.runline .btn { flex: 1; }
+/* Everything the run produces, hidden until there is a run. */
+.dm-live { display: none; }
+.dm-live.on { display: block; }
 
 /* =========================================================
    PLAYGROUND
@@ -450,12 +361,8 @@ input[type=range] { flex: 1; accent-color: var(--kept); }
 .meter-fill { position: absolute; inset: 0 auto 0 0; background: var(--kept); }
 .meter-cap { display: flex; justify-content: space-between; font-family: var(--f-mono); font-size: 10px; color: var(--slate); margin-top: .3rem; }
 
-details.pkg { border: 1px solid var(--rule); background: var(--paper); }
-details.pkg > summary { cursor: pointer; padding: .45rem .65rem; font-size: 11.5px; font-weight: 700; display: flex; justify-content: space-between; gap: .5rem; list-style: none; font-family: var(--f-ui); }
-details.pkg > summary::-webkit-details-marker { display: none; }
-details.pkg > summary::after { content: "expand"; font-family: var(--f-mono); font-size: 10px; color: var(--slate); font-weight: 400; }
-details.pkg[open] > summary::after { content: "collapse"; }
-details.pkg > summary:hover { color: var(--kept); }
+.pkgbox { border: 1px solid var(--rule); background: var(--paper); }
+.pkgbox > .label { display: block; padding: .5rem .7rem .35rem; }
 .pkg-text { font-family: var(--f-mono); font-size: 11px; line-height: 1.65; white-space: pre-wrap; padding: .75rem; border-top: 1px solid var(--rule); max-height: 320px; overflow: auto; color: var(--ink-soft); }
 .pkg-text .h { color: var(--kept); font-weight: 700; }
 
@@ -476,8 +383,7 @@ details.pkg > summary:hover { color: var(--kept); }
 .boundary { display: flex; align-items: center; gap: .7rem; padding: .5rem .8rem; flex-wrap: wrap; border: 1px dashed var(--kept); background: var(--kept-bg); font-family: var(--f-mono); font-size: 10.5px; color: var(--kept); }
 
 .st-group { border-bottom: 1px solid var(--rule); }
-.st-head { display: flex; justify-content: space-between; align-items: center; padding: .55rem 1.1rem; cursor: pointer; user-select: none; }
-.st-head:hover { color: var(--kept); }
+.st-head { display: flex; justify-content: space-between; align-items: center; padding: .6rem 1.1rem; border-bottom: 1px solid var(--rule); background: var(--panel); }
 .st-count { font-family: var(--f-mono); font-size: 11px; color: var(--slate); }
 .st-count.grew { color: var(--kept); font-weight: 700; }
 .st-body { padding: 0 1.1rem .9rem; display: flex; flex-direction: column; gap: .45rem; }
@@ -597,21 +503,7 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
 .qs p { font-size: .92rem; color: var(--ink-soft); }
 .qs .code { font-size: 12px; margin-top: .7rem; }
 
-/* ---- playground guidance ---- */
-.dm-sticky { position: sticky; top: 56px; z-index: 40; margin-bottom: 1.5rem; }
-.dm-guide { display: flex; align-items: baseline; gap: .7rem; flex-wrap: wrap; padding: .55rem .9rem; border: 1px solid var(--rule-strong); border-top: 0; background: var(--ink); color: var(--paper); font-family: var(--f-ui); font-size: 12.5px; }
-.dm-guide .gk { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; opacity: .55; flex: none; }
-.dm-guide .gdo { font-weight: 700; }
-.dm-guide .gthen { opacity: .7; }
 
-/* The step heading, so you always know where you are without the rail. */
-.dm-where { font-family: var(--f-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--kept); }
-
-.todo { border: 1px solid var(--kept); background: var(--kept-bg); padding: .75rem .9rem; margin-top: 1.15rem; font-family: var(--f-ui); }
-.todo > .label { display: block; color: var(--kept); margin-bottom: .4rem; }
-.todo ol { margin: 0; padding-left: 1.15rem; }
-.todo li { font-size: 12.5px; color: var(--ink-soft); margin-bottom: .3rem; line-height: 1.45; }
-.todo li:last-child { margin-bottom: 0; }
 
 .debrief { border: 1px solid var(--rule-strong); background: var(--panel); padding: .9rem; font-family: var(--f-ui); }
 .debrief > .label { display: block; margin-bottom: .5rem; }
@@ -627,102 +519,78 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
 .dd-grid p { font-size: .92rem; color: var(--ink-soft); }
 .dd-grid .mono { display: block; margin-top: .45rem; font-size: 11px; color: var(--slate); }
 /* =========================================================
-   PLAYGROUND LAYOUT
+   PLAYGROUND
    ---------------------------------------------------------
-   Everything below is scoped to #playground on purpose. The
-   prose sections above it are a different reading problem and
-   are deliberately left alone.
-
-   Three things were wrong. The section sat in the same 1100px
-   band as the essay, so its panels hugged the left of the
-   screen with a third of the width unused. Its narrow blocks
-   were left-aligned inside that band rather than centred in
-   it. And the run showed a 640px-wide diagram, a caption, a
-   worker strip and two 600px scroll boxes at once, on every
-   screen size, with no statement anywhere of what stage the
-   engine had actually reached.
+   One centred column, read top to bottom: the job, the team,
+   the run, then what came out of it. No step rail, no
+   disclosure widgets, no side by side panels. Scoped to
+   #playground; the rest of the page is left alone.
    ========================================================= */
 
-/* -- width ------------------------------------------------ */
-/* The playground is the working part of the page and earns
-   more room than the prose. Narrow blocks inside it are
-   centred rather than pinned left. */
-#playground .wrap { max-width: 1320px; }
-#playground .shead,
-#playground .plain,
-#playground .nextup { margin-left: auto; margin-right: auto; }
-#playground .shead { text-align: center; }
-#playground .shead p { margin-left: auto; margin-right: auto; }
-#playground .dm-copy p { max-width: none; }
+#playground .wrap { max-width: 880px; }
 
-@media (max-width: 620px) {
-  #playground .shead { text-align: left; }
+#playground .pg-intro { text-align: center; margin-bottom: 2rem; }
+#playground .pg-intro h2 { max-width: 22ch; margin: .7rem auto 0; }
+#playground .pg-intro p { max-width: 58ch; margin: 1rem auto 0; color: var(--slate); }
+
+#playground .flow { display: flex; flex-direction: column; gap: 1.1rem; }
+
+#playground .card { border: 1px solid var(--rule-strong); background: var(--paper); }
+#playground .card-head {
+  display: flex; align-items: center; gap: .7rem;
+  padding: .7rem 1.1rem; border-bottom: 1px solid var(--rule); background: var(--panel);
 }
-
-/* -- step rail -------------------------------------------- */
-/* A four-across strip that scrolls sideways is a poor way to
-   show four steps on a phone. Two by two, no scrolling. */
-@media (max-width: 620px) {
-  #playground .dm-sticky { position: static; }
-  #playground .dm-rail { display: grid; grid-template-columns: 1fr 1fr; overflow: visible; }
-  #playground .dm-tab { min-width: 0; white-space: normal; }
-  #playground .dm-tab:nth-child(-n+2) { border-bottom: 1px solid var(--rule); }
-  #playground .dm-tab:nth-child(2n) { border-right: 0; }
-  #playground .dm-tab .tag { display: none; }
-  #playground .dm-guide { font-size: 12px; padding: .5rem .75rem; }
+#playground .card-head .n {
+  font-family: var(--f-mono); font-size: 11px; font-weight: 700;
+  color: var(--paper); background: var(--ink);
+  width: 21px; height: 21px; display: grid; place-items: center; flex: none;
 }
-
-/* -- the run: the diagram, then the stage list ------------- */
-/* Both keep the full width. The diagram is drawn on an 860
-   unit canvas and only survives at that size - in a half width
-   track its labels came out at nine pixels and it scrolled
-   sideways for ever. The stage list spends the same width on
-   two columns instead, so the pair costs no more height than
-   the diagram used to on its own. */
-#playground .lv-top { display: block; border-bottom: 1px solid var(--rule); }
-#playground .lv-top .lv-stage { border-bottom: 1px solid var(--rule); }
-
-/* Below this the diagram cannot be drawn at a readable size,
-   and the stage list says the same thing in words. */
-@media (max-width: 700px) {
-  #playground .lv-top .lv-stage { display: none; }
+#playground .card-head h3 { font-size: 1rem; font-weight: 700; margin: 0; }
+#playground .card-head .hd {
+  margin-left: auto; font-family: var(--f-mono); font-size: 11px;
+  color: var(--slate); text-align: right;
 }
-
-/* -- the stage list --------------------------------------- */
-/* Six stages, in the order they happen, for the turn running
-   now. Each row says what the stage does; once it has run, the
-   row also says what it did on this turn. */
-#playground .seq { display: flex; flex-direction: column; min-width: 0; background: var(--paper); }
-#playground .seq-head {
-  display: flex; justify-content: space-between; align-items: baseline;
-  gap: .5rem; padding: .6rem 1rem; border-bottom: 1px solid var(--rule);
-  background: var(--panel-2);
+#playground .card-body { padding: 1.1rem; }
+#playground .card-body > .lead {
+  font-family: var(--f-body); font-size: .97rem; color: var(--ink-soft);
+  margin-bottom: 1.1rem;
 }
-#playground .seq-turn { font-family: var(--f-mono); font-size: 11px; color: var(--slate); }
+#playground .card-body > .fg:last-child { margin-bottom: 0; }
 
-#playground .seq .lv-cap {
-  flex-wrap: wrap; background: var(--paper); padding: .6rem 1rem; gap: .3rem .6rem;
+/* Label and value, one per line. Used for the run summary. */
+#playground .pairs { margin: 0; border-top: 1px solid var(--rule); }
+#playground .pairs div {
+  display: grid; grid-template-columns: 9rem 1fr; gap: .8rem;
+  padding: .5rem 0; border-bottom: 1px solid var(--rule);
+  font-size: 12.5px; align-items: baseline;
 }
-@media (max-width: 900px) {
-  #playground .seq .lv-cap .detail { margin-left: 0; flex-basis: 100%; text-align: left; }
+#playground .pairs .k {
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--slate);
+}
+#playground .pairs span:last-child { color: var(--ink-soft); font-family: var(--f-ui); }
+@media (max-width: 520px) {
+  #playground .pairs div { grid-template-columns: 1fr; gap: .1rem; }
 }
 
-#playground .seq-list {
-  list-style: none; margin: 0; padding: .3rem 0 .5rem;
-  display: grid; grid-template-columns: 1fr;
+/* A full width strip inside a card, labelling the block under it. */
+#playground .sub {
+  display: flex; justify-content: space-between; align-items: baseline; gap: .5rem;
+  padding: .55rem 1.1rem; background: var(--panel);
+  border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
 }
-@media (min-width: 900px) {
-  #playground .seq-list {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: repeat(3, auto);
-    grid-auto-flow: column;
-  }
-  #playground .sq:nth-child(-n+3) { border-right: 1px solid var(--rule); }
-}
+#playground .roster { border-top: 0; }
+#playground .rw { padding-left: 1.1rem; padding-right: 1.1rem; }
+
+/* -- the six stages ---------------------------------------- */
+/* What the engine does on every turn, in the order it does it.
+   Each row says what the stage is for; once it has run, the
+   row says what it did on this turn instead. */
+#playground .seq-list { list-style: none; margin: 0; padding: .3rem 0 .5rem; }
 #playground .sq {
   display: grid; grid-template-columns: 1.5rem minmax(0, 1fr) auto;
   gap: .2rem .55rem; align-items: baseline;
-  padding: .42rem 1rem .42rem .85rem;
+  padding: .45rem 1.1rem .45rem .9rem;
   border-left: 2px solid transparent;
 }
 #playground .sq-n {
@@ -747,47 +615,38 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
 #playground .sq.is-now { border-left-color: var(--amber); background: var(--panel); }
 #playground .sq.is-now .sq-t { color: var(--ink); }
 #playground .sq.is-now .sq-d { color: var(--ink-soft); }
-#playground .sq.is-now .sq-st { color: var(--amber); }
-#playground .sq.is-now .sq-n { color: var(--amber); }
+#playground .sq.is-now .sq-st, #playground .sq.is-now .sq-n { color: var(--amber); }
 
 #playground .sq.is-done { border-left-color: var(--kept); }
 #playground .sq.is-done .sq-t { color: var(--ink-soft); }
-#playground .sq.is-done .sq-st { color: var(--kept); }
-#playground .sq.is-done .sq-n { color: var(--kept); }
-/* Once a stage has run, its own description has served its
-   purpose and the outcome takes the line. */
+#playground .sq.is-done .sq-st, #playground .sq.is-done .sq-n { color: var(--kept); }
+/* Once a stage has run, the outcome takes the line. */
 #playground .sq.is-done.has-live .sq-d { display: none; }
 
 #playground .sq.is-flag { border-left-color: var(--dropped); background: var(--dropped-bg); }
 #playground .sq.is-flag .sq-t,
 #playground .sq.is-flag .sq-st,
-#playground .sq.is-flag .sq-n { color: var(--dropped); }
+#playground .sq.is-flag .sq-n,
 #playground .sq.is-flag .sq-live { color: var(--dropped); }
 
-/* -- execution / state columns ---------------------------- */
-/* Two independently scrolling 600px boxes stacked on a phone
-   is three scroll contexts fighting over one thumb. Below the
-   breakpoint they become one column at a time, chosen here,
-   scrolling with the page. */
-#playground .lv-switch { display: none; }
-@media (max-width: 940px) {
-  #playground .lv-switch { display: flex; margin: 0; border-top: 0; border-left: 0; border-right: 0; }
-  #playground .lv-col { max-height: none; overflow: visible; }
-  #playground .lv-cols.pick-0 .lv-col:nth-child(2),
-  #playground .lv-cols.pick-1 .lv-col:nth-child(1) { display: none; }
-}
-
-/* -- small-screen tidying --------------------------------- */
+/* -- small screens ----------------------------------------- */
 @media (max-width: 560px) {
-  #playground .pg-pad,
+  #playground .card-body,
   #playground .run-body { padding: .85rem; }
-  #playground .seq-head,
-  #playground .seq .lv-cap { padding-left: .85rem; padding-right: .85rem; }
-  #playground .sq { padding-left: .6rem; padding-right: .85rem; }
+  #playground .card-head,
+  #playground .sub,
+  #playground .lv-cap,
+  #playground .wrail,
+  #playground .rw,
+  #playground .asg-row,
+  #playground .st-head,
+  #playground .st-body { padding-left: .85rem; padding-right: .85rem; }
+  #playground .sq { padding-left: .65rem; padding-right: .85rem; }
+  #playground .lv-cap { flex-wrap: wrap; }
+  #playground .lv-cap .detail { margin-left: 0; flex-basis: 100%; text-align: left; }
   #playground .wc-head { flex-wrap: wrap; }
   #playground .wc-right { margin-left: 0; flex-basis: 100%; }
   #playground .sf-row { flex-wrap: wrap; gap: .1rem 1rem; }
-  #playground .lv-cap .detail { font-size: 10.5px; }
   #playground .empty { padding: 2.25rem 1rem; }
 }
 
@@ -1347,355 +1206,139 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
 
 <section id="playground" class="pg-section">
   <div class="wrap">
-    <div class="shead col">
-      <span class="label">See it happen</span>
-      <h2>Don't take any of that on trust. Watch it.</h2>
-      <p>Below, five workers take one job and pass it between themselves. You can open the exact briefing each one was handed, see what it claimed afterwards, and see which of those claims were refused. Nothing here is a recording &mdash; it runs when you press the button.</p>
+
+    <div class="pg-intro">
+      <span class="label">See it work</span>
+      <h2>Five workers. One job. Nothing passed between them but a record.</h2>
+      <p>This runs for real when you press the button. No key needed, nothing to set up.
+         Read the job, press run, and watch each worker take its turn.</p>
     </div>
 
-    <div class="plain">
-      <span class="label">Before you press anything</span>
-      <p>It runs as four screens, <b>one at a time</b>, and each screen tells you the one thing to do on it. Everything is filled in already, so you can also skip straight to the end and just press run.</p>
-      <p>Two moments are worth catching. A <b>green dashed line</b> appears between two workers &mdash; that is the handover, and it states in writing that no conversation crossed. And a <b>red box</b> appears when a worker claims something the record refuses to accept.</p>
-      <div style="margin-top:1rem"><button class="btn" type="button" data-goto="4" style="width:auto;padding:.55rem 1.2rem">Skip the setup, take me to the run &rarr;</button></div>
+    <div class="flow">
+
+      <div class="card">
+        <div class="card-head"><span class="n">1</span><h3>The job</h3></div>
+        <div class="card-body">
+          <p class="lead">An objective and a list of steps. That is everything you give it.
+            Who does which step, and what each worker gets told, is worked out for you.</p>
+          <div class="fg">
+            <span class="label">Objective</span>
+            <textarea id="pgObjective" rows="3"></textarea>
+          </div>
+          <div class="fg">
+            <span class="label">Steps</span>
+            <div id="steps"></div>
+            <button class="btn ghost" id="addStep" style="margin-top:.4rem">Add a step</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><span class="n">2</span><h3>Who does it</h3><span class="hd" id="credStatus"></span></div>
+        <div class="card-body">
+          <p class="lead">Five separate workers on four different models. None of them can see
+            another one&rsquo;s conversation, and none of them is told which company is behind any
+            other. Each takes one step, in order.</p>
+        </div>
+        <div class="sub"><span class="label">The workers</span><span class="label mono" id="rosterCount"></span></div>
+        <div class="roster" id="roster"></div>
+        <div class="sub"><span class="label">Who takes which step</span></div>
+        <div class="asg" id="assignments"></div>
+        <div class="card-body">
+          <div class="fg">
+            <span class="label">Most a worker may be told</span>
+            <div class="range-row">
+              <input type="range" id="budget" min="200" max="4000" step="100" value="1600">
+              <span class="mono" id="budgetVal" style="font-size:12px;width:4.5rem;text-align:right">1600 tok</span>
+            </div>
+            <p class="hint">Set it low and the engine starts leaving things out, least important
+              first. Set it to 400 and watch the older material fall away.</p>
+          </div>
+          <div class="fg" style="margin-bottom:0">
+            <span class="label">Models</span>
+            <div class="toggle">
+              <button id="modeMock" aria-pressed="true">Stand-in, no keys</button>
+              <button id="modeLive" aria-pressed="false">Real models</button>
+            </div>
+            <p class="hint" id="modeHint"></p>
+          </div>
+          <div class="fg" style="margin-bottom:0;margin-top:1.15rem" id="keyPanel">
+            <span class="label">API keys</span>
+            <div class="toggle" style="margin-bottom:.55rem">
+              <button id="keyOne" aria-pressed="true">One key for all</button>
+              <button id="keyEach" aria-pressed="false">Per worker</button>
+            </div>
+            <div class="keys" id="keyFields"></div>
+            <div class="checkline">
+              <input type="checkbox" id="keyRemember">
+              <label for="keyRemember">Keep in this tab until it closes.</label>
+            </div>
+            <div class="keyfoot">
+              <button class="btn ghost" id="keyVerify">Check the keys</button>
+              <button class="btn ghost" id="keyClear">Clear</button>
+            </div>
+            <div class="vres" id="keyRes"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><span class="n">3</span><h3>Run it</h3></div>
+        <div class="card-body">
+          <p class="lead">Two things are worth watching for. A <b>green line</b> between two
+            workers is the handover, and it states in writing that no conversation crossed. A
+            <b>red box</b> is a worker claiming something the record would not accept.</p>
+          <dl class="pairs" id="runPlan"></dl>
+          <div id="setupErr"></div>
+          <button class="btn" id="runBtn" style="margin-top:1rem">Run it</button>
+          <div class="checkline">
+            <input type="checkbox" id="pace" checked>
+            <label for="pace">Slow it down so each turn is watchable. It is over in milliseconds otherwise.</label>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <div class="demo" id="demo">
-      <div class="dm-sticky">
-        <nav class="dm-rail" id="dmRail" aria-label="Demo steps"></nav>
-        <div class="dm-guide" id="dmGuide">
-          <span class="gk">Do next</span>
-          <span class="gdo" id="dmGuideDo">Loading the engine configuration</span>
-          <span class="gthen" id="dmGuideThen"></span>
-        </div>
-      </div>
+    <div class="dm-live" id="dmLive">
+      <div class="flow" style="margin-top:1.1rem">
 
-      <!-- ---------------------------------------------------------- 1 -->
-      <div class="dm-step on" id="dmStep1" data-step="1">
-        <div class="dm-grid">
-          <div class="dm-copy">
-            <span class="dm-where">Step 1 of 4 &middot; optional</span>
-            <h3>Give it a key, or give it nothing</h3>
-            <div class="todo">
-              <span class="label">Do this now</span>
-              <ol>
-                <li><b>No API key?</b> Change nothing &mdash; press <b>Continue</b> at the bottom of this step.</li>
-                <li><b>Have a key?</b> Paste it below, press <b>Verify keys</b>, and if every worker comes back reachable switch the gateway to <b>Live models</b>.</li>
-              </ol>
-            </div>
-            <p>Everything above the gateway is provider-blind: a worker is an id, a model string and a credential, and the orchestrator never learns which provider is behind any of them. Paste a key and these workers become real models.</p>
-            <p>Skip it and a <span class="gloss" tabindex="0" data-def="A stand-in that answers instantly without calling any provider, so the whole engine runs with no key and no cost. Only the model call is simulated.">deterministic offline gateway</span> stands in. The rest of the engine still runs for real &mdash; the same compilation, the same reconciliation, the same writes to SQLite, the same audit. Only the model calls are simulated, which is why the whole demo works with nothing configured.</p>
-            <details class="facts">
-              <summary>More about keys</summary>
-              <dl class="dm-facts">
-                <div><span class="k">Where it goes</span><span>Onto an in-memory worker config, for the run that uses it.</span></div>
-                <div><span class="k">Where it never goes</span><span>The database, the logs, or back to this page.</span></div>
-                <div><span class="k">Watch for</span><span>A key is only valid for the provider its model string names.</span></div>
-              </dl>
-            </details>
+        <div class="card">
+          <div class="card-head"><span class="n">4</span><h3>What is happening</h3><span class="hd" id="seqTurn">not started</span></div>
+          <div class="lv-cap">
+            <span class="what" id="lvWhat">Nothing running yet</span>
+            <span id="lvWhy" style="color:var(--slate);font-size:12.5px"></span>
+            <span class="detail" id="lvDetail"></span>
           </div>
-
-          <div class="dm-panel">
-            <div class="pg-head"><span class="label">Gateway</span><span class="label mono" id="credStatus"></span></div>
-            <div class="pg-pad">
-              <div class="fg">
-                <div class="toggle">
-                  <button id="modeMock" aria-pressed="true">Mock, no keys</button>
-                  <button id="modeLive" aria-pressed="false">Live models</button>
-                </div>
-                <p class="hint" id="modeHint"></p>
-              </div>
-
-              <div class="fg" style="margin-bottom:0" id="keyPanel">
-                <span class="label">API keys</span>
-                <div class="toggle" style="margin-bottom:.55rem">
-                  <button id="keyOne" aria-pressed="true">One key for all</button>
-                  <button id="keyEach" aria-pressed="false">Per worker</button>
-                </div>
-                <div class="keys" id="keyFields"></div>
-                <div class="checkline">
-                  <input type="checkbox" id="keyRemember">
-                  <label for="keyRemember">Keep in this tab until it closes.</label>
-                </div>
-                <div class="keyfoot">
-                  <button class="btn ghost" id="keyVerify">Verify keys</button>
-                  <button class="btn ghost" id="keyClear">Clear</button>
-                </div>
-                <div class="vres" id="keyRes"></div>
-                <p class="hint">Verifying sends one small call per worker and reports exactly what the provider said.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="dm-nav">
-          <span class="pos">Step 1 of 4</span>
-          <span class="note">No key is fine &mdash; the offline gateway is the default.</span>
-          <button class="btn next" data-goto="2">Continue: describe the task &rarr;</button>
-        </div>
-      </div>
-
-      <!-- ---------------------------------------------------------- 2 -->
-      <div class="dm-step" id="dmStep2" data-step="2">
-        <div class="dm-grid">
-          <div class="dm-copy">
-            <span class="dm-where">Step 2 of 4 &middot; already filled in</span>
-            <h3>Say what the work is</h3>
-            <div class="todo">
-              <span class="label">Do this now</span>
-              <ol>
-                <li>Read the objective and the plan steps on the right. They are already filled in with the demo task.</li>
-                <li>Change them if you like &mdash; or leave them exactly as they are, which is the safe choice for a first run.</li>
-                <li>Press <b>Continue</b>.</li>
-              </ol>
-            </div>
-            <p>This is the only thing the engine asks of you: an objective, and a plan of steps. Everything after this &mdash; who does which step, what each one is told, what survives to the next &mdash; is the engine's problem, not yours.</p>
-            <p>The demo task is pre-filled, and it is deliberately one where the steps depend on each other: you cannot design the endpoints without the schema, or review the design without both. Edit it, or write your own. A broken handoff shows up immediately as a worker redesigning something that already exists.</p>
-            <details class="facts">
-              <summary>How the plan is used</summary>
-              <dl class="dm-facts">
-                <div><span class="k">Objective</span><span>Carried into every package, at priority 2, never dropped.</span></div>
-                <div><span class="k">Plan</span><span>One worker per step, in order.</span></div>
-                <div><span class="k">Fewer steps</span><span>Surplus workers get continuation turns rather than being idle.</span></div>
-              </dl>
-            </details>
-          </div>
-
-          <div class="dm-panel">
-            <div class="pg-head"><span class="label">Task setup</span></div>
-            <div class="pg-pad">
-              <div class="fg">
-                <span class="label">Objective</span>
-                <textarea id="pgObjective" rows="3"></textarea>
-              </div>
-              <div class="fg" style="margin-bottom:0">
-                <span class="label">Plan steps</span>
-                <div id="steps"></div>
-                <button class="btn ghost" id="addStep" style="margin-top:.35rem">Add step</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="dm-nav">
-          <button class="btn ghost" data-goto="1">&larr; Back</button>
-          <span class="pos">Step 2 of 4</span>
-          <button class="btn next" data-goto="3">Continue: meet the workers &rarr;</button>
-        </div>
-      </div>
-
-      <!-- ---------------------------------------------------------- 3 -->
-      <div class="dm-step" id="dmStep3" data-step="3">
-        <div class="dm-grid">
-          <div class="dm-copy">
-            <span class="dm-where">Step 3 of 4 &middot; nothing required</span>
-            <h3>Who is going to do it</h3>
-            <div class="todo">
-              <span class="label">Do this now</span>
-              <ol>
-                <li>Look at <i>Who gets which step</i> on the right. That is the exact assignment, decided before anything runs.</li>
-                <li>Optional: drag the budget slider. It caps how much any single worker may be told.</li>
-                <li>Press <b>Continue</b>.</li>
-              </ol>
-            </div>
-            <p>Workers are read from <span class="mono">workers.json</span> at runtime. Adding, removing or reordering one requires no code change, and the engine behaves identically with two workers or a hundred. There is exactly one worker class in the codebase; everything that varies is configuration.</p>
-            <p>Each worker takes one step of your plan, in order, and receives nothing but a compiled package built for that step. It has no memory of the workers before it and no way to reach their conversations. The budget below is the ceiling on what any one of them may be told.</p>
-            <details class="facts">
-              <summary>How workers are matched to steps</summary>
-              <dl class="dm-facts">
-                <div><span class="k">Assignment</span><span>Round robin: worker i takes step i, wrapping if the plan is longer.</span></div>
-                <div><span class="k">Receives</span><span>One system prompt and one compiled package. Nothing else.</span></div>
-                <div><span class="k">Budget</span><span>Lower it and the compiler starts giving up its lowest-priority context.</span></div>
-              </dl>
-            </details>
-          </div>
-
-          <div class="dm-panel">
-            <div class="pg-head"><span class="label">Worker roster</span><span class="label mono" id="rosterCount"></span></div>
-            <div class="roster" id="roster"></div>
-            <div class="pg-head"><span class="label">Who gets which step</span></div>
-            <div class="asg" id="assignments"></div>
-            <div class="pg-head"><span class="label">Context budget per handoff</span></div>
-            <div class="pg-pad">
-              <div class="range-row">
-                <input type="range" id="budget" min="200" max="4000" step="100" value="1600">
-                <span class="mono" id="budgetVal" style="font-size:12px;width:4.5rem;text-align:right">1600 tok</span>
-              </div>
-              <p class="hint">Every worker is measured against this. Drop it to 400 and watch the failed attempts fall out of the package.</p>
-            </div>
-          </div>
-        </div>
-        <div class="dm-nav">
-          <button class="btn ghost" data-goto="2">&larr; Back</button>
-          <span class="pos">Step 3 of 4</span>
-          <button class="btn next" data-goto="4">Continue: run it &rarr;</button>
-        </div>
-      </div>
-
-      <!-- ---------------------------------------------------------- 4 -->
-      <div class="dm-step" id="dmStep4" data-step="4">
-        <div class="dm-grid">
-          <div class="dm-copy">
-            <span class="dm-where">Step 4 of 4 &middot; the run</span>
-            <h3>Every turn, as it happens</h3>
-            <div class="todo">
-              <span class="label">Do this now</span>
-              <ol>
-                <li>Press <b>Run task</b>. It finishes in about half a minute at demo pace.</li>
-                <li>Watch the diagram: the lit-up box is the component working right now, and the line under it says what it is doing in plain words.</li>
-                <li>When it stops, read the <i>What you just saw</i> panel at the bottom of the Execution column. It points at the four things worth noticing.</li>
-              </ol>
-            </div>
-            <p>Press run. The diagram tracks the engine live: which component is working, what it is holding, and what just crossed between two workers. Underneath it, each worker appears with the exact package it received, the claims it made, and the reconciler's verdict on those claims.</p>
-            <p>The canonical state panel grows turn by turn. Watch the counters climb, watch an artifact arrive marked unverified, and watch an issue stay open after a worker announces it solved. The walkthrough above freezes one of these turns and annotates it, if you want it slower than this.</p>
-            <dl class="dm-facts">
-              <div><span class="k">Green line</span><span>A handoff. It records that no conversation crossed.</span></div>
-              <div><span class="k">Red box</span><span>The reconciler refused something a worker claimed.</span></div>
-              <div><span class="k">Meter</span><span>Context received, against the budget you set.</span></div>
-            </dl>
-          </div>
-
-          <div class="dm-panel">
-            <div class="pg-head"><span class="label">Run</span><span class="label mono" id="runStatus"></span></div>
-            <div class="pg-pad">
-              <div class="runline">
-                <button class="btn" id="runBtn">Run task</button>
-              </div>
-              <div class="checkline">
-                <input type="checkbox" id="pace" checked>
-                <label for="pace">Play at demo pace. A mock run finishes in milliseconds; this spaces the turns out so you can watch each one land.</label>
-              </div>
-              <div id="setupErr"></div>
-              <dl class="dm-facts" id="runPlan" style="margin-top:1.1rem"></dl>
-            </div>
-          </div>
-        </div>
-
-        <div class="dm-live" id="dmLive">
-          <div class="lv-top">
-          <div class="lv-stage">
-            <svg viewBox="0 0 860 220" role="img" aria-labelledby="lvTitle">
-              <title id="lvTitle">Live view of the engine: state, compiler, package, worker, outputs, reconciler and store</title>
-              <g class="lv-node" id="lvn-state">
-                <rect x="6" y="40" width="140" height="54"></rect>
-                <text x="76" y="63" class="svg-text" text-anchor="middle">CANONICAL</text>
-                <text x="76" y="81" class="svg-text" text-anchor="middle">STATE</text>
-              </g>
-              <g class="lv-arrow" id="lva-1">
-                <line x1="146" y1="67" x2="180" y2="67"></line>
-                <polygon points="180,62 192,67 180,72"></polygon>
-              </g>
-              <g class="lv-node" id="lvn-compiler">
-                <rect x="196" y="40" width="140" height="54"></rect>
-                <text x="266" y="63" class="svg-text" text-anchor="middle">COMPILER</text>
-                <text x="266" y="82" class="svg-mono" text-anchor="middle">budget enforced</text>
-              </g>
-              <g class="lv-arrow" id="lva-2">
-                <line x1="336" y1="67" x2="370" y2="67"></line>
-                <polygon points="370,62 382,67 370,72"></polygon>
-              </g>
-              <g class="lv-node" id="lvn-package">
-                <rect x="386" y="40" width="140" height="54"></rect>
-                <text x="456" y="63" class="svg-text" text-anchor="middle">PACKAGE</text>
-                <text x="456" y="82" class="svg-mono" text-anchor="middle" id="lvPkgTok">no run yet</text>
-              </g>
-              <g class="lv-arrow" id="lva-3">
-                <line x1="526" y1="67" x2="560" y2="67"></line>
-                <polygon points="560,62 572,67 560,72"></polygon>
-              </g>
-              <g class="lv-node" id="lvn-worker">
-                <rect x="576" y="40" width="140" height="54"></rect>
-                <text x="646" y="63" class="svg-text" text-anchor="middle" id="lvWorkerName">WORKER</text>
-                <text x="646" y="82" class="svg-mono" text-anchor="middle" id="lvWorkerModel">idle</text>
-              </g>
-              <g class="lv-arrow" id="lva-4">
-                <line x1="646" y1="94" x2="646" y2="126"></line>
-                <polygon points="641,126 646,138 651,126"></polygon>
-              </g>
-              <g class="lv-node" id="lvn-out">
-                <rect x="576" y="140" width="140" height="54"></rect>
-                <text x="646" y="163" class="svg-text" text-anchor="middle">RESULT +</text>
-                <text x="646" y="181" class="svg-text" text-anchor="middle">REPORT</text>
-              </g>
-              <g class="lv-arrow" id="lva-5">
-                <line x1="576" y1="167" x2="542" y2="167"></line>
-                <polygon points="542,162 530,167 542,172"></polygon>
-              </g>
-              <g class="lv-node trust" id="lvn-reconciler">
-                <rect x="386" y="140" width="140" height="54"></rect>
-                <text x="456" y="163" class="svg-text" text-anchor="middle">RECONCILER</text>
-                <text x="456" y="182" class="svg-mono" text-anchor="middle">trust boundary</text>
-              </g>
-              <g class="lv-arrow" id="lva-6">
-                <line x1="386" y1="167" x2="352" y2="167"></line>
-                <polygon points="352,162 340,167 352,172"></polygon>
-              </g>
-              <g class="lv-node" id="lvn-store">
-                <rect x="196" y="140" width="140" height="54"></rect>
-                <text x="266" y="163" class="svg-text" text-anchor="middle">SQLITE</text>
-                <text x="266" y="182" class="svg-mono" text-anchor="middle">every turn</text>
-              </g>
-              <g class="lv-arrow" id="lva-7">
-                <path d="M 196 167 L 76 167 L 76 106"></path>
-                <polygon points="71,106 76,94 81,106"></polygon>
-              </g>
-              <g class="lv-node" id="lvn-blocked">
-                <rect x="746" y="40" width="108" height="54" stroke-dasharray="4 3"></rect>
-                <text x="800" y="62" class="svg-mono" text-anchor="middle">conversation</text>
-                <text x="800" y="78" class="svg-mono" text-anchor="middle">never crosses</text>
-              </g>
-            </svg>
-          </div>
-
-          <div class="seq">
-            <div class="seq-head">
-              <span class="label">What happens on each turn</span>
-              <span class="seq-turn" id="seqTurn">not started</span>
-            </div>
-            <div class="lv-cap">
-              <span class="what" id="lvWhat">Nothing running yet</span>
-              <span id="lvWhy" style="color:var(--slate);font-size:12.5px"></span>
-              <span class="detail" id="lvDetail"></span>
-            </div>
-            <ol class="seq-list" id="seqList"></ol>
-          </div>
-          </div>
-
           <div class="wrail" id="wrail"></div>
+          <ol class="seq-list" id="seqList"></ol>
+        </div>
 
-          <div class="toggle lv-switch" id="lvSwitch">
-            <button type="button" data-col="0" aria-pressed="true">Execution</button>
-            <button type="button" data-col="1" aria-pressed="false">Canonical state</button>
-          </div>
-
-          <div class="lv-cols pick-0" id="lvCols">
-            <div class="lv-col">
-              <div class="pg-head"><span class="label">Execution</span></div>
-              <div class="run-body" id="runBody">
-                <div class="empty">
-                  <h4>Nothing running yet</h4>
-                  <p>Press Run task. Each worker appears here with the exact context package it received, and nothing else.</p>
-                </div>
-              </div>
-            </div>
-            <div class="lv-col">
-              <div class="pg-head"><span class="label">Canonical state</span><span class="label mono" id="stateStatus">idle</span></div>
-              <div id="stateBody"></div>
+        <div class="card">
+          <div class="card-head"><span class="n">5</span><h3>Turn by turn</h3><span class="hd" id="runStatus"></span></div>
+          <div class="run-body" id="runBody">
+            <div class="empty">
+              <h4>Nothing running yet</h4>
+              <p>Each worker will appear here with the exact briefing it was handed, what it
+                claimed afterwards, and which of those claims were refused.</p>
             </div>
           </div>
         </div>
 
-        <div class="dm-nav">
-          <button class="btn ghost" data-goto="3">&larr; Back</button>
-          <span class="pos">Step 4 of 4</span>
-          <button class="btn ghost" data-goto="1">Start again from step 1</button>
+        <div class="card">
+          <div class="card-head"><span class="n">6</span><h3>What the record holds</h3><span class="hd" id="stateStatus">idle</span></div>
+          <div id="stateBody"></div>
         </div>
+
       </div>
-
     </div>
 
     <div class="nextup">
       <span class="label">Next</span>
       <a href="#deep">Read how it does all that</a>
-      <span class="why">Contracts, the compile algorithm, the reconciler's invariants and the failure semantics &mdash; or jump to the <a href="#glossary" style="border-bottom-color:var(--rule-strong)">glossary</a> if a word here was unfamiliar.</span>
+      <span class="why">The contracts, the way context is chosen, and what happens when a
+        worker fails. Or jump to the <a href="#glossary" style="border-bottom-color:var(--rule-strong)">glossary</a>
+        if a word here was unfamiliar.</span>
     </div>
   </div>
 </section>
@@ -2160,8 +1803,8 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
     $("modeMock").setAttribute("aria-pressed", String(mock));
     $("modeLive").setAttribute("aria-pressed", String(!mock));
     $("modeHint").textContent = mock
-      ? "Deterministic offline gateway. No API calls, no keys, instant. The full engine still runs."
-      : "Calls your configured providers with the keys in .env, or the keys you paste below. Costs money and takes time.";
+      ? "A stand-in answers instead of a real model. No key, no network, nothing to pay for. Everything else runs for real."
+      : "Calls real models with the keys you supply. Costs money, and takes about ninety seconds.";
     if (CFG) { updateRunPlan(); }
   }
   $("modeMock").addEventListener("click", function () { setMode(true); });
@@ -2247,7 +1890,6 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
     $("stateStatus").textContent = "running";
     $("dmLive").classList.add("on");
     lvReset();
-    dmTags();
 
     if (ES) { ES.close(); }
     // A mock run empties its queue almost instantly. Rendering is what gets
@@ -2352,7 +1994,6 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
     $("runBtn").disabled = false;
     $("runBtn").textContent = "Run task";
     $("stateStatus").textContent = "done";
-    dmTags();
   }
 
   function handle(d) {
@@ -2365,11 +2006,6 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
     else if (d.event === "run_finished") { onFinished(d); }
     else if (d.event === "run_error") { onError(d); }
     else if (d.event === "stream_end") { finish(); }
-  }
-
-  function scrollRun() {
-    var c = $("runBody").parentElement;
-    c.scrollTop = c.scrollHeight;
   }
 
   function highlightPkg(text) {
@@ -2390,20 +2026,19 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
         '<div class="wc-task">' + esc(d.task) + "</div>" +
         "<div>" +
           '<div class="meter-bar"><div class="meter-fill" style="width:' + pct + '%"></div></div>' +
-          '<div class="meter-cap"><span>context received ' + p.estimated_tokens +
-            " tok of " + p.token_budget + " budget</span><span>" +
-            p.included_sections.length + " sections</span></div>" +
+          '<div class="meter-cap"><span>given ' + p.estimated_tokens +
+            " tok of the " + p.token_budget + " allowed</span><span>" +
+            p.included_sections.length + " pieces</span></div>" +
         "</div>" +
-        '<details class="pkg"><summary>Everything this worker received</summary>' +
-          '<div class="pkg-text">' + highlightPkg(p.rendered_text) + "</div></details>" +
+        '<div class="pkgbox"><span class="label">What this worker was given</span>' +
+          '<div class="pkg-text">' + highlightPkg(p.rendered_text) + "</div></div>" +
         (p.omitted_sections.length
-          ? '<div class="box flagged"><span class="label">Dropped by the budget</span><div style="font-size:12px">' +
+          ? '<div class="box flagged"><span class="label">Left out to fit</span><div style="font-size:12px">' +
             esc(p.omitted_sections.join(", ")) + "</div></div>"
           : "") +
         '<div class="slot"></div>' +
       "</div>";
     $("runBody").appendChild(card);
-    scrollRun();
   }
 
   function currentCard() {
@@ -2429,20 +2064,19 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
     var r = d.result, rep = d.report;
     card.querySelector(".slot").innerHTML =
       '<div class="grid2">' +
-        box("Decisions recorded", (r.decisions || []).map(function (x) {
+        box("Decisions made", (r.decisions || []).map(function (x) {
           return esc(x.decision) + (x.reason ? '<span class="why">' + esc(x.reason) + "</span>" : "");
         })) +
         box("Artifacts", (r.artifacts || []).map(function (x) { return esc(x.name); })) +
-        box("Issues raised", (r.issues || []).map(function (x) {
+        box("Problems raised", (r.issues || []).map(function (x) {
           return "[" + esc(x.severity) + "] " + esc(x.description);
         })) +
-        box("Failed attempts", (r.failed_attempts || []).map(function (x) {
+        box("Dead ends", (r.failed_attempts || []).map(function (x) {
           return esc(x.attempt) + (x.reason ? '<span class="why">' + esc(x.reason) + "</span>" : "");
         })) +
       "</div>" +
-      '<div class="box" style="margin-top:.8rem"><span class="label">Notes for the next worker</span>' +
+      '<div class="box" style="margin-top:.8rem"><span class="label">Note for the next worker</span>' +
         '<div style="font-size:12.5px">' + esc(rep.notes_for_next_worker || "None.") + "</div></div>";
-    scrollRun();
   }
 
   function onWorkerFailed(d) {
@@ -2451,7 +2085,6 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
     card.className = "wc failed";
     card.querySelector(".wc-right").innerHTML = '<span class="pill bad">FAILED</span>';
     card.querySelector(".slot").innerHTML = '<div class="err">' + esc(d.error) + "</div>";
-    scrollRun();
   }
 
   function onReconciled(d) {
@@ -2465,18 +2098,17 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
 
     card.querySelector(".slot").insertAdjacentHTML("beforeend",
       '<div class="box ' + (flagged ? "flagged" : "good") + '" style="margin-top:.8rem">' +
-      '<span class="label">Reconciler</span>' +
-      '<div style="font-size:12.5px;margin-bottom:.35rem">Merged: ' + (acc || "nothing new") +
+      '<span class="label">What was checked</span>' +
+      '<div style="font-size:12.5px;margin-bottom:.35rem">Kept: ' + (acc || "nothing new") +
       (dup ? " (duplicates suppressed: " + esc(dup) + ")" : "") + "</div>" +
       (d.rejected_resolutions.length
-        ? '<div style="font-size:12.5px;margin-bottom:.35rem"><b>Resolution claimed but not accepted:</b> ' +
+        ? '<div style="font-size:12.5px;margin-bottom:.35rem"><b>Said to be fixed, and not accepted:</b> ' +
           esc(d.rejected_resolutions.join("; ")) + "</div>"
         : "") +
       (d.warnings.length
         ? "<ul>" + d.warnings.map(function (w) { return "<li>" + esc(w) + "</li>"; }).join("") + "</ul>"
         : "") + "</div>");
     renderState(d.state);
-    scrollRun();
   }
 
   function onHandoff(d) {
@@ -2485,12 +2117,11 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
     el.className = "boundary";
     el.innerHTML =
       "<span><b>" + esc(a.previous_worker) + "</b> to <b>" + esc(a.next_worker) + "</b></span>" +
-      "<span>raw conversation: <b>NO</b></span>" +
-      "<span>canonical state: <b>YES</b></span>" +
-      "<span>handoff report: <b>" + (a.handoff_report_included ? "YES" : "NO") + "</b></span>" +
+      "<span>conversation passed on: <b>NO</b></span>" +
+      "<span>the record: <b>YES</b></span>" +
+      "<span>note to the next worker: <b>" + (a.handoff_report_included ? "YES" : "NO") + "</b></span>" +
       "<span>" + a.package_tokens + " tok</span>";
     $("runBody").appendChild(el);
-    scrollRun();
   }
 
   function row(k, v) {
@@ -2502,14 +2133,14 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
     var el = document.createElement("div");
     el.className = "summary-final" + (d.continuity ? "" : " bad");
     el.innerHTML =
-      '<span class="label" style="display:block;margin-bottom:.55rem">Run complete</span>' +
-      row("Workers used", s.workers_used) +
-      row("Raw conversation transfers", s.raw_conversation_transfers) +
-      row("Structured handoffs", s.structured_handoffs) +
-      row("Context packages compiled", s.packages_compiled) +
-      row("Total context tokens sent", s.total_context_tokens) +
-      row("Reconciler warnings", s.reconciliation_warnings) +
-      row("Continuity maintained", d.continuity ? "YES" : "NO") +
+      '<span class="label" style="display:block;margin-bottom:.55rem">Finished</span>' +
+      row("Workers that took a turn", s.workers_used) +
+      row("Conversations passed between them", s.raw_conversation_transfers) +
+      row("Handovers", s.structured_handoffs) +
+      row("Briefings written", s.packages_compiled) +
+      row("Words sent, counted in tokens", s.total_context_tokens) +
+      row("Claims that were questioned", s.reconciliation_warnings) +
+      row("Work carried all the way through", d.continuity ? "YES" : "NO") +
       (s.failures && s.failures.length
         ? '<div class="err" style="margin-top:.6rem">' + esc(s.failures.join(" | ")) + "</div>"
         : "");
@@ -2517,7 +2148,6 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
     $("runBody").insertAdjacentHTML("beforeend", debrief(d));
     renderState(d.state);
     $("stateStatus").textContent = d.state.status;
-    scrollRun();
     finish();
   }
 
@@ -2530,37 +2160,37 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
     var claimed = openIssues.filter(function (i) { return i.claimed_by; });
     var items = [];
 
-    items.push("<b>No conversation crossed, and that is recorded.</b> " +
-      s.structured_handoffs + " handoff" + (s.structured_handoffs === 1 ? "" : "s") +
-      ", and <b>" + s.raw_conversation_transfers + "</b> raw conversation transfers. " +
-      "Each green dashed line above is the audit record for one handoff, written to the database, not just printed here.");
+    items.push("<b>Nobody read anybody else's conversation.</b> " +
+      s.structured_handoffs + " handover" + (s.structured_handoffs === 1 ? "" : "s") +
+      ", and <b>" + s.raw_conversation_transfers + "</b> conversations passed between them. " +
+      "Each green line above is the written record of one handover. It is saved, not just shown here.");
 
-    items.push("<b>Context stayed bounded.</b> " + s.total_context_tokens +
-      " tokens across the whole run, every package inside the " + $("budget").value +
-      "-token budget. Replaying the transcript instead would have grown every turn without limit. " +
-      "Open \u201cEverything this worker received\u201d on the last card: it is a short document, not a chat log.");
+    items.push("<b>Nothing grew out of control.</b> " + s.total_context_tokens +
+      " tokens for the whole job, and every briefing stayed under the " + $("budget").value +
+      " you set. Passing the conversation along instead would have grown at every turn, with no ceiling. " +
+      "Look at what the last worker was given: it is a short briefing, not a chat log.");
 
     if (claimed.length) {
-      items.push("<b>A claim the engine refused.</b> \u201c" + esc(claimed[0].description) +
+      items.push("<b>Something a worker said, that was not accepted.</b> \u201c" + esc(claimed[0].description) +
         "\u201d was declared resolved by " + esc(claimed[0].claimed_by) +
-        ", and it is still open. Nothing verified it, so the reconciler recorded the claim and kept the issue.");
+        ", and it is still open. Nothing checked it, so the claim was written down and the problem stayed on the list.");
     } else if (s.reconciliation_warnings) {
-      items.push("<b>The reconciler flagged " + s.reconciliation_warnings +
-        " thing" + (s.reconciliation_warnings === 1 ? "" : "s") + ".</b> " +
-        "Look for the red Reconciler box on the cards above \u2014 that is a worker claim the engine declined to take at face value.");
+      items.push("<b>" + s.reconciliation_warnings +
+        " thing" + (s.reconciliation_warnings === 1 ? " was" : "s were") + " questioned.</b> " +
+        "Look for the red box on the cards above. That is something a worker said that was not taken at its word.");
     } else {
-      items.push("<b>The reconciler accepted this run cleanly.</b> No discrepancies between what workers claimed and what they returned. " +
-        "Run it again with a different plan and you will usually see at least one flagged.");
+      items.push("<b>Nothing was questioned this time.</b> What the workers said matched what they actually handed back. " +
+        "Run it again with a different plan and you will usually see at least one refused.");
     }
 
-    items.push("<b>Continuity is visible in state, not asserted.</b> The Canonical state panel holds " +
+    items.push("<b>You can see the work carried through, not just be told it was.</b> The record holds " +
       (st.decisions || []).length + " decisions, " + (st.artifacts || []).length + " artifacts" +
-      (unverified ? " (" + unverified + " stamped unverified)" : "") + ", " +
-      (st.failed_attempts || []).length + " failed attempts and " + openIssues.length +
-      " open issue" + (openIssues.length === 1 ? "" : "s") +
-      ". Open Decisions and check the attribution: the last worker inherited choices made by the first.");
+      (unverified ? " (" + unverified + " of them unchecked)" : "") + ", " +
+      (st.failed_attempts || []).length + " dead ends and " + openIssues.length +
+      " open problem" + (openIssues.length === 1 ? "" : "s") +
+      ". Look at who made each decision: the last worker was building on choices the first one made.");
 
-    return '<div class="debrief"><span class="label">What you just saw</span><ol>' +
+    return '<div class="debrief"><span class="label">What just happened</span><ol>' +
       items.map(function (i) { return "<li>" + i + "</li>"; }).join("") +
       "</ol></div>";
   }
@@ -2605,31 +2235,17 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
       }]
     ];
 
-    var open = {};
-    $("stateBody").querySelectorAll(".st-group").forEach(function (g) {
-      open[g.dataset.name] = g.dataset.open === "1";
-    });
-
     $("stateBody").innerHTML = groups.map(function (g) {
       var name = g[0], items = g[1] || [], fmt = g[2];
       var grew = PREV[name] !== undefined && items.length > PREV[name];
-      var isOpen = open[name] !== undefined ? open[name] : (name === "Decisions");
       PREV[name] = items.length;
-      return '<div class="st-group" data-name="' + name + '" data-open="' + (isOpen ? "1" : "0") + '">' +
+      return '<div class="st-group">' +
         '<div class="st-head"><span class="label">' + name + "</span>" +
         '<span class="st-count' + (grew ? " grew" : "") + '">' + items.length + "</span></div>" +
-        (isOpen ? '<div class="st-body">' +
-          (items.length ? items.map(fmt).join("") : '<span class="none">Nothing yet.</span>') +
-          "</div>" : "") + "</div>";
+        '<div class="st-body">' +
+        (items.length ? items.map(fmt).join("") : '<span class="none">Nothing yet.</span>') +
+        "</div></div>";
     }).join("");
-
-    $("stateBody").querySelectorAll(".st-head").forEach(function (h) {
-      h.addEventListener("click", function () {
-        var g = h.parentElement;
-        g.dataset.open = g.dataset.open === "1" ? "0" : "1";
-        renderState(st);
-      });
-    });
   }
   var WT = {
     "sections": [
@@ -3458,112 +3074,15 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
   }
 
   // =====================================================================
-  // GUIDED DEMO
+  // THE DEMO
   //
-  // The playground is four steps: credentials, the task, the roster, then
-  // the run. The rail tracks where you are; the live panel in step 4 is
-  // driven by the same event stream that draws the worker cards.
+  // One page, read top to bottom. The run output is driven by the same
+  // event stream that draws the worker cards.
   // =====================================================================
-
-  var DM_STEPS = [
-    { n: 1, name: "Credentials",
-      todo: "Nothing to do here. Press Continue.",
-      then: "Paste a key only if you want live models instead of the offline stand-in." },
-    { n: 2, name: "The task",
-      todo: "Read the objective and the plan steps, then press Continue.",
-      then: "Already filled in. Edit them only if you want to." },
-    { n: 3, name: "The workers",
-      todo: "Look at who gets which step, then press Continue.",
-      then: "Optional: lower the budget slider to squeeze what each worker is told." },
-    { n: 4, name: "Watch it run",
-      todo: "Press the Run task button.",
-      then: "It takes about half a minute. Watch the green handoff lines and any red reconciler box." }
-  ];
 
   var CONT_TASK = "Continue the objective from the current execution state, " +
     "acting on the recommended next action.";
   var CUR_SEQ = 0;
-
-  var DM_AT = 1;
-  var DM_SEEN = 1;
-
-  function dmGo(n) {
-    if (!$("dmStep" + n)) { return; }
-    DM_AT = n;
-    if (n > DM_SEEN) { DM_SEEN = n; }
-
-    DM_STEPS.forEach(function (s) {
-      $("dmStep" + s.n).classList.toggle("on", s.n === n);
-    });
-    $("dmRail").querySelectorAll(".dm-tab").forEach(function (t) {
-      var i = parseInt(t.dataset.step, 10);
-      t.setAttribute("aria-current", String(i === n));
-      t.classList.toggle("done", i < DM_SEEN && i !== n);
-    });
-    dmGuide();
-
-    // Bring the rail to the top of the viewport, under the nav. Without this
-    // a jump from step 1 to step 4 leaves you looking at the wrong thing.
-    var rail = document.querySelector(".dm-sticky");
-    var y = window.scrollY + rail.getBoundingClientRect().top - 60;
-    window.scrollTo({ top: y, behavior: "auto" });
-  }
-
-  function dmTags() {
-    var steps = planStepValues();
-    var turns = CFG ? Math.max(steps.length, CFG.workers.length) : steps.length;
-    var tags = [
-      MOCK ? ["mock", ""] : ["live", "ok"],
-      [steps.length + (steps.length === 1 ? " step" : " steps"), ""],
-      [CFG ? CFG.workers.length + " workers" : "", ""],
-      [RUNNING ? "running" : (turns ? turns + " turns" : ""), RUNNING ? "warn" : ""]
-    ];
-    DM_STEPS.forEach(function (s, i) {
-      var el = $("dmTag" + s.n);
-      if (!el) { return; }
-      el.textContent = tags[i][0];
-      el.className = "tag " + tags[i][1];
-    });
-    dmGuide();
-  }
-
-  // The black bar under the rail. It answers one question at all times:
-  // what should the reader do right now.
-  function dmGuide() {
-    var s = DM_STEPS[(DM_AT || 1) - 1];
-    var doTxt = s.todo, thenTxt = s.then;
-
-    if (DM_AT === 4) {
-      if (RUNNING) {
-        doTxt = "Running \u2014 watch the diagram and the cards below.";
-        thenTxt = "The lit box is the component working now; the line under it says what it is doing.";
-      } else if ($("runBody") && $("runBody").querySelector(".summary-final")) {
-        doTxt = "Run finished. Read \u201cWhat you just saw\u201d at the foot of the Execution column.";
-        thenTxt = "Then take one turn apart stage by stage in the walkthrough above.";
-      }
-    } else if (DM_AT === 1 && !MOCK) {
-      doTxt = "Live models selected. Press \u201cVerify keys\u201d before running.";
-      thenTxt = "A live run costs money and takes about ninety seconds.";
-    }
-
-    $("dmGuideDo").textContent = doTxt;
-    $("dmGuideThen").textContent = thenTxt;
-  }
-
-  (function dmInit() {
-    $("dmRail").innerHTML = DM_STEPS.map(function (s) {
-      return '<button class="dm-tab" data-step="' + s.n + '" aria-current="false">' +
-        '<span class="n">' + s.n + "</span><span>" + esc(s.name) + "</span>" +
-        '<span class="tag" id="dmTag' + s.n + '"></span></button>';
-    }).join("");
-    $("dmRail").querySelectorAll(".dm-tab").forEach(function (t) {
-      t.addEventListener("click", function () { dmGo(parseInt(t.dataset.step, 10)); });
-    });
-    document.querySelectorAll("[data-goto]").forEach(function (b) {
-      b.addEventListener("click", function () { dmGo(parseInt(b.dataset.goto, 10)); });
-    });
-    dmGo(1);
-  })();
 
   // -- step 2/3: what the plan turns into ------------------------------
 
@@ -3603,10 +3122,9 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
     var steps = planStepValues();
     var turns = CFG ? Math.max(steps.length, CFG.workers.length) : steps.length;
     $("runPlan").innerHTML =
-      fact("Gateway", MOCK ? "mock, offline, no cost" : "live models, billed to your key") +
+      fact("Models", MOCK ? "stand-in, offline, free" : "real models, billed to your key") +
       fact("Turns", turns + (turns === 1 ? " worker turn" : " worker turns")) +
-      fact("Budget", $("budget").value + " tokens per package");
-    dmTags();
+      fact("Limit", $("budget").value + " tokens per briefing");
   }
 
   function refreshPlan() {
@@ -3616,23 +3134,6 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
 
   // -- step 4: the live pipeline ---------------------------------------
 
-  var LV_NODES = ["lvn-state", "lvn-compiler", "lvn-package", "lvn-worker",
-                  "lvn-out", "lvn-reconciler", "lvn-store"];
-
-  function lv(nodes, arrows, tone) {
-    tone = tone || "on";
-    LV_NODES.forEach(function (id) {
-      var el = $(id);
-      el.classList.remove("on", "busy");
-      if (nodes.indexOf(id) !== -1) { el.classList.add(tone); }
-    });
-    for (var i = 1; i <= 7; i++) {
-      var a = $("lva-" + i);
-      a.classList.remove("on", "busy");
-      if (arrows.indexOf("lva-" + i) !== -1) { a.classList.add(tone); }
-    }
-  }
-
   function lvSay(what, why, detail) {
     $("lvWhat").textContent = what;
     $("lvWhy").textContent = why || "";
@@ -3640,13 +3141,9 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
   }
 
   function lvReset() {
-    lv([], []);
     seqBuild();
     seqReset("not started");
     lvSay("Nothing running yet", "", "");
-    $("lvPkgTok").textContent = "no run yet";
-    $("lvWorkerName").textContent = "WORKER";
-    $("lvWorkerModel").textContent = "idle";
     $("wrail").innerHTML = "";
   }
 
@@ -3678,18 +3175,18 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
   // phone screen, where the diagram is too wide to draw legibly.
 
   var SEQ_STAGES = [
-    { k: "compile", t: "Compile the context package",
-      d: "The engine reads canonical state and writes one briefing that fits the token budget." },
-    { k: "handover", t: "Hand it to the worker",
-      d: "It goes out as one system message and one user message. No transcript is attached." },
+    { k: "compile", t: "Write the briefing",
+      d: "The engine reads the record and writes one short briefing, small enough to fit the limit you set." },
+    { k: "handover", t: "Hand it over",
+      d: "The briefing is all the worker gets. No conversation from anyone before it." },
     { k: "work", t: "The worker answers",
-      d: "A result and a handoff report come back. Both are still only claims at this point." },
-    { k: "reconcile", t: "Check what it claimed",
-      d: "The reconciler decides which claims reach canonical state, and which are refused." },
-    { k: "commit", t: "Write the accepted records",
-      d: "Whatever is kept is stamped with the worker that produced it and saved to SQLite." },
-    { k: "handoff", t: "Record the handoff",
-      d: "An audit line states what crossed to the next worker, and that no conversation did." }
+      d: "It says what it did and writes a note for whoever comes next. So far this is only what it says." },
+    { k: "reconcile", t: "Check what it said",
+      d: "Every claim is checked before anything is written down. Some get refused." },
+    { k: "commit", t: "Write it down",
+      d: "What survives goes into the record, with the name of the worker that produced it." },
+    { k: "handoff", t: "Log the handover",
+      d: "A line goes in the record saying what crossed to the next worker, and that no conversation did." }
   ];
 
   var SEQ_LABEL = { now: "now", done: "done", flag: "refused" };
@@ -3742,25 +3239,17 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
   function lvEvent(d) {
     if (d.event === "run_started") {
       buildWRail(d.roster);
-      lv(["lvn-state", "lvn-compiler"], ["lva-1"], "busy");
-      lvSay("Compiling the first package",
-        "state holds only the objective and the plan so far",
+      lvSay("Writing the first briefing",
+        "the record holds only the objective and the plan so far",
         d.total + " turns queued");
-      $("lvPkgTok").textContent = "compiling";
-      $("lvWorkerModel").textContent = "waiting";
       seqReset("turn 1 of " + d.total);
       seqSet("compile", "now");
 
     } else if (d.event === "worker_started") {
       CUR_SEQ = d.seq;
       wMark(d.seq, "active");
-      lv(["lvn-state", "lvn-compiler", "lvn-package", "lvn-worker"],
-         ["lva-1", "lva-2", "lva-3"], "busy");
-      $("lvPkgTok").textContent = d.package.estimated_tokens + " of " + d.package.token_budget + " tok";
-      $("lvWorkerName").textContent = d.worker_id.toUpperCase();
-      $("lvWorkerModel").textContent = d.model;
       lvSay(d.worker_id + " is working",
-        "it was handed " + d.package.included_sections.length + " sections of state and no conversation",
+        "handed " + d.package.included_sections.length + " pieces of the record, and no conversation",
         "turn " + d.index + " of " + d.total);
       seqReset("turn " + d.index + " of " + d.total + " · " + d.worker_id);
       seqSet("compile", "done",
@@ -3773,27 +3262,24 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
 
     } else if (d.event === "worker_completed") {
       wMark(CUR_SEQ, "done");
-      lv(["lvn-worker", "lvn-out"], ["lva-4"]);
       lvSay(d.worker_id + " answered",
-        "a result and a handoff report, both still only claims",
+        "it said what it did and left a note for the next one. Nothing checked yet.",
         d.duration_ms + " ms, " + d.messages_sent + " messages");
       seqSet("work", "done", d.duration_ms + " ms, " + d.messages_sent + " messages sent");
       seqSet("reconcile", "now");
 
     } else if (d.event === "worker_failed") {
       wMark(CUR_SEQ, "failed");
-      lv([], []);
       lvSay(d.worker_id + " failed",
-        "the failure is recorded and the run carries on from state", "");
-      seqSet("work", "flag", "no usable answer — the run carries on from state");
+        "that is written down too, and the next worker carries on from the record", "");
+      seqSet("work", "flag", "no usable answer. The run carries on from the record.");
 
     } else if (d.event === "reconciled") {
       var flagged = d.warnings.length + d.rejected_resolutions.length;
-      lv(["lvn-reconciler", "lvn-state"], ["lva-5", "lva-6", "lva-7"]);
-      lvSay("Reconciling " + d.worker_id + "'s claims",
+      lvSay("Checking what " + d.worker_id + " said",
         flagged
           ? flagged + (flagged === 1 ? " claim was" : " claims were") + " not taken at face value"
-          : "merged into canonical state with provenance stamped by the engine",
+          : "all of it went into the record, stamped with who said it",
         counts(d.accepted) || "nothing new");
       seqSet("reconcile", flagged ? "flag" : "done",
         flagged
@@ -3804,29 +3290,26 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
 
     } else if (d.event === "handoff") {
       var a = d.audit;
-      lv(["lvn-store", "lvn-state"], ["lva-6", "lva-7"]);
       lvSay(a.previous_worker + " to " + a.next_worker,
-        "canonical state crossed the boundary, conversation did not",
-        a.package_tokens + " tok compiled for the next worker");
+        "the record crossed over. The conversation did not.",
+        a.package_tokens + " tok in the next briefing");
       seqSet("handoff", "done", a.previous_worker + " → " + a.next_worker + ", " +
         a.package_tokens + " tok, 0 conversation");
 
     } else if (d.event === "run_finished") {
-      lv(LV_NODES, ["lva-1", "lva-2", "lva-3", "lva-4", "lva-5", "lva-6", "lva-7"]);
       var s = d.summary;
-      lvSay(d.continuity ? "Run complete, continuity maintained" : "Run finished with failures",
-        s.workers_used + " workers, " + s.structured_handoffs + " handoffs, " +
-        s.raw_conversation_transfers + " raw conversation transfers",
+      lvSay(d.continuity ? "Done. The work carried all the way through." : "Finished, but some turns failed",
+        s.workers_used + " workers, " + s.structured_handoffs + " handovers, " +
+        s.raw_conversation_transfers + " conversations passed on",
         s.total_context_tokens + " tok sent in total");
       // The last turn has nobody to hand to, so no handoff event arrives and
       // that stage would otherwise sit on "now" for good.
       if ($("sq-handoff").classList.contains("is-now")) {
-        seqSet("handoff", "done", "last turn — no worker left to hand to");
+        seqSet("handoff", "done", "last turn, nobody left to hand to");
       }
       $("seqTurn").textContent = "all " + s.workers_used + " turns complete";
 
     } else if (d.event === "run_error") {
-      lv([], []);
       lvSay("The run stopped", "", "");
       $("seqTurn").textContent = "stopped";
     }
