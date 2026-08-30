@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Credentials and local worker roster
+.env
+.env.local
+workers.json
+
+# SQLite state written by runs
+*.db
+*.db-wal
+*.db-shm
+
+# Vercel
+.vercel/
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

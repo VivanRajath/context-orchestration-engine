@@ -1,0 +1,45 @@
+{
+  "_comment": "Add, remove or reorder entries freely. The orchestrator reads this file at runtime and works identically with 2, 5, 20 or 100 workers. The 'model' string picks the provider (LiteLLM prefix); 'api_key_env' picks the credential. Five separate Groq org keys, four distinct model families - the engine never learns which is which.",
+  "workers": [
+    {
+      "id": "worker-1",
+      "model": "groq/openai/gpt-oss-120b",
+      "api_key_env": "WORKER_1_API_KEY",
+      "role": "architecture",
+      "temperature": 0.2,
+      "max_tokens": 2200
+    },
+    {
+      "id": "worker-2",
+      "model": "groq/qwen/qwen3.8-27b",
+      "api_key_env": "WORKER_2_API_KEY",
+      "role": "data modelling",
+      "temperature": 0.2,
+      "max_tokens": 2200
+    },
+    {
+      "id": "worker-3",
+      "model": "groq/openai/gpt-oss-20b",
+      "api_key_env": "WORKER_3_API_KEY",
+      "role": "security",
+      "temperature": 0.2,
+      "max_tokens": 2200
+    },
+    {
+      "id": "worker-4",
+      "model": "groq/qwen/qwen3.6-27b",
+      "api_key_env": "WORKER_4_API_KEY",
+      "role": "api design",
+      "temperature": 0.2,
+      "max_tokens": 2200
+    },
+    {
+      "id": "worker-5",
+      "model": "groq/openai/gpt-oss-120b",
+      "api_key_env": "WORKER_5_API_KEY",
+      "role": "review",
+      "temperature": 0.1,
+      "max_tokens": 2200
+    }
+  ]
+}

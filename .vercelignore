@@ -1,0 +1,16 @@
+# The deployed playground runs the engine and serves the page. Nothing else
+# needs to travel, and every megabyte here is cold-start time.
+.venv/
+venv/
+dist/
+tests/
+*.egg-info/
+*.db
+*.db-wal
+*.db-shm
+.pytest_cache/
+__pycache__/
+.env
+workers.json
+docs/
+.github/

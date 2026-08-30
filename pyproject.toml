@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "context-orchestration-engine"
+version = "0.1.0"
+description = "N independent LLM workers, one continuous task. Context as portable execution state, not conversation history."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+keywords = [
+    "llm", "orchestration", "agents", "context", "handoff",
+    "multi-agent", "litellm", "state-management",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "litellm>=1.63.0",
+    "pydantic>=2.7.0",
+    "rich>=13.7.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+web = ["fastapi>=0.110.0", "uvicorn[standard]>=0.29.0"]
+dev = [
+    "pytest>=8.0.0",
+    "pyflakes>=3.0.0",
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.29.0",
+    "httpx>=0.27.0",   # fastapi.testclient
+]
+
+[project.scripts]
+coe = "context_orchestration.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/context_orchestration"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/context_orchestration", "tests", "README.md", "pyproject.toml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

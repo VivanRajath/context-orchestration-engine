@@ -1,0 +1,14 @@
+# Dependencies for the deployed web playground.
+#
+# For local work install the package instead - that pulls the full set,
+# LiteLLM included, and puts the `coe` command on your PATH:
+#
+#     pip install -e ".[dev]"
+#
+# LiteLLM is deliberately absent here. The hosted playground runs the mock
+# gateway only (COE_SERVERLESS closes live model calls), and LiteLLM's
+# dependency tree is most of a serverless bundle on its own. It is imported
+# lazily inside the gateway, so nothing above it notices.
+fastapi>=0.110.0
+pydantic>=2.7.0
+python-dotenv>=1.0.0

@@ -1,0 +1,9 @@
+# Normalise to LF in the repository; check out whatever the platform prefers.
+* text=auto
+
+*.py    text diff=python
+*.md    text
+*.json  text
+*.yml   text
+*.html  text
+*.db    binary
