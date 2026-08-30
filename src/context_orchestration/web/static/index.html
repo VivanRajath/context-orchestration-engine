@@ -626,6 +626,171 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
 .dd-grid h4 { font-family: var(--f-ui); font-size: .95rem; margin: 0 0 .4rem; }
 .dd-grid p { font-size: .92rem; color: var(--ink-soft); }
 .dd-grid .mono { display: block; margin-top: .45rem; font-size: 11px; color: var(--slate); }
+/* =========================================================
+   PLAYGROUND LAYOUT
+   ---------------------------------------------------------
+   Everything below is scoped to #playground on purpose. The
+   prose sections above it are a different reading problem and
+   are deliberately left alone.
+
+   Three things were wrong. The section sat in the same 1100px
+   band as the essay, so its panels hugged the left of the
+   screen with a third of the width unused. Its narrow blocks
+   were left-aligned inside that band rather than centred in
+   it. And the run showed a 640px-wide diagram, a caption, a
+   worker strip and two 600px scroll boxes at once, on every
+   screen size, with no statement anywhere of what stage the
+   engine had actually reached.
+   ========================================================= */
+
+/* -- width ------------------------------------------------ */
+/* The playground is the working part of the page and earns
+   more room than the prose. Narrow blocks inside it are
+   centred rather than pinned left. */
+#playground .wrap { max-width: 1320px; }
+#playground .shead,
+#playground .plain,
+#playground .nextup { margin-left: auto; margin-right: auto; }
+#playground .shead { text-align: center; }
+#playground .shead p { margin-left: auto; margin-right: auto; }
+#playground .dm-copy p { max-width: none; }
+
+@media (max-width: 620px) {
+  #playground .shead { text-align: left; }
+}
+
+/* -- step rail -------------------------------------------- */
+/* A four-across strip that scrolls sideways is a poor way to
+   show four steps on a phone. Two by two, no scrolling. */
+@media (max-width: 620px) {
+  #playground .dm-sticky { position: static; }
+  #playground .dm-rail { display: grid; grid-template-columns: 1fr 1fr; overflow: visible; }
+  #playground .dm-tab { min-width: 0; white-space: normal; }
+  #playground .dm-tab:nth-child(-n+2) { border-bottom: 1px solid var(--rule); }
+  #playground .dm-tab:nth-child(2n) { border-right: 0; }
+  #playground .dm-tab .tag { display: none; }
+  #playground .dm-guide { font-size: 12px; padding: .5rem .75rem; }
+}
+
+/* -- the run: the diagram, then the stage list ------------- */
+/* Both keep the full width. The diagram is drawn on an 860
+   unit canvas and only survives at that size - in a half width
+   track its labels came out at nine pixels and it scrolled
+   sideways for ever. The stage list spends the same width on
+   two columns instead, so the pair costs no more height than
+   the diagram used to on its own. */
+#playground .lv-top { display: block; border-bottom: 1px solid var(--rule); }
+#playground .lv-top .lv-stage { border-bottom: 1px solid var(--rule); }
+
+/* Below this the diagram cannot be drawn at a readable size,
+   and the stage list says the same thing in words. */
+@media (max-width: 700px) {
+  #playground .lv-top .lv-stage { display: none; }
+}
+
+/* -- the stage list --------------------------------------- */
+/* Six stages, in the order they happen, for the turn running
+   now. Each row says what the stage does; once it has run, the
+   row also says what it did on this turn. */
+#playground .seq { display: flex; flex-direction: column; min-width: 0; background: var(--paper); }
+#playground .seq-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: .5rem; padding: .6rem 1rem; border-bottom: 1px solid var(--rule);
+  background: var(--panel-2);
+}
+#playground .seq-turn { font-family: var(--f-mono); font-size: 11px; color: var(--slate); }
+
+#playground .seq .lv-cap {
+  flex-wrap: wrap; background: var(--paper); padding: .6rem 1rem; gap: .3rem .6rem;
+}
+@media (max-width: 900px) {
+  #playground .seq .lv-cap .detail { margin-left: 0; flex-basis: 100%; text-align: left; }
+}
+
+#playground .seq-list {
+  list-style: none; margin: 0; padding: .3rem 0 .5rem;
+  display: grid; grid-template-columns: 1fr;
+}
+@media (min-width: 900px) {
+  #playground .seq-list {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(3, auto);
+    grid-auto-flow: column;
+  }
+  #playground .sq:nth-child(-n+3) { border-right: 1px solid var(--rule); }
+}
+#playground .sq {
+  display: grid; grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+  gap: .2rem .55rem; align-items: baseline;
+  padding: .42rem 1rem .42rem .85rem;
+  border-left: 2px solid transparent;
+}
+#playground .sq-n {
+  font-family: var(--f-mono); font-size: 10px; font-weight: 700;
+  color: var(--slate-2); grid-row: span 2;
+}
+#playground .sq-t { font-family: var(--f-ui); font-size: 12.5px; font-weight: 700; color: var(--slate); }
+#playground .sq-st {
+  font-family: var(--f-mono); font-size: 9.5px; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--slate-2); white-space: nowrap;
+}
+#playground .sq-d {
+  grid-column: 2 / -1; font-family: var(--f-ui); font-size: 11.5px;
+  line-height: 1.45; color: var(--slate-2);
+}
+#playground .sq-live {
+  grid-column: 2 / -1; font-family: var(--f-mono); font-size: 10.5px;
+  line-height: 1.5; color: var(--kept); display: none;
+}
+#playground .sq.has-live .sq-live { display: block; }
+
+#playground .sq.is-now { border-left-color: var(--amber); background: var(--panel); }
+#playground .sq.is-now .sq-t { color: var(--ink); }
+#playground .sq.is-now .sq-d { color: var(--ink-soft); }
+#playground .sq.is-now .sq-st { color: var(--amber); }
+#playground .sq.is-now .sq-n { color: var(--amber); }
+
+#playground .sq.is-done { border-left-color: var(--kept); }
+#playground .sq.is-done .sq-t { color: var(--ink-soft); }
+#playground .sq.is-done .sq-st { color: var(--kept); }
+#playground .sq.is-done .sq-n { color: var(--kept); }
+/* Once a stage has run, its own description has served its
+   purpose and the outcome takes the line. */
+#playground .sq.is-done.has-live .sq-d { display: none; }
+
+#playground .sq.is-flag { border-left-color: var(--dropped); background: var(--dropped-bg); }
+#playground .sq.is-flag .sq-t,
+#playground .sq.is-flag .sq-st,
+#playground .sq.is-flag .sq-n { color: var(--dropped); }
+#playground .sq.is-flag .sq-live { color: var(--dropped); }
+
+/* -- execution / state columns ---------------------------- */
+/* Two independently scrolling 600px boxes stacked on a phone
+   is three scroll contexts fighting over one thumb. Below the
+   breakpoint they become one column at a time, chosen here,
+   scrolling with the page. */
+#playground .lv-switch { display: none; }
+@media (max-width: 940px) {
+  #playground .lv-switch { display: flex; margin: 0; border-top: 0; border-left: 0; border-right: 0; }
+  #playground .lv-col { max-height: none; overflow: visible; }
+  #playground .lv-cols.pick-0 .lv-col:nth-child(2),
+  #playground .lv-cols.pick-1 .lv-col:nth-child(1) { display: none; }
+}
+
+/* -- small-screen tidying --------------------------------- */
+@media (max-width: 560px) {
+  #playground .pg-pad,
+  #playground .run-body { padding: .85rem; }
+  #playground .seq-head,
+  #playground .seq .lv-cap { padding-left: .85rem; padding-right: .85rem; }
+  #playground .sq { padding-left: .6rem; padding-right: .85rem; }
+  #playground .wc-head { flex-wrap: wrap; }
+  #playground .wc-right { margin-left: 0; flex-basis: 100%; }
+  #playground .sf-row { flex-wrap: wrap; gap: .1rem 1rem; }
+  #playground .lv-cap .detail { font-size: 10.5px; }
+  #playground .empty { padding: 2.25rem 1rem; }
+}
+
 </style>
 </head>
 <body>
@@ -1405,6 +1570,7 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
         </div>
 
         <div class="dm-live" id="dmLive">
+          <div class="lv-top">
           <div class="lv-stage">
             <svg viewBox="0 0 860 220" role="img" aria-labelledby="lvTitle">
               <title id="lvTitle">Live view of the engine: state, compiler, package, worker, outputs, reconciler and store</title>
@@ -1479,15 +1645,28 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
             </svg>
           </div>
 
-          <div class="lv-cap">
-            <span class="what" id="lvWhat">Nothing running yet</span>
-            <span id="lvWhy" style="color:var(--slate);font-size:12.5px"></span>
-            <span class="detail" id="lvDetail"></span>
+          <div class="seq">
+            <div class="seq-head">
+              <span class="label">What happens on each turn</span>
+              <span class="seq-turn" id="seqTurn">not started</span>
+            </div>
+            <div class="lv-cap">
+              <span class="what" id="lvWhat">Nothing running yet</span>
+              <span id="lvWhy" style="color:var(--slate);font-size:12.5px"></span>
+              <span class="detail" id="lvDetail"></span>
+            </div>
+            <ol class="seq-list" id="seqList"></ol>
+          </div>
           </div>
 
           <div class="wrail" id="wrail"></div>
 
-          <div class="lv-cols">
+          <div class="toggle lv-switch" id="lvSwitch">
+            <button type="button" data-col="0" aria-pressed="true">Execution</button>
+            <button type="button" data-col="1" aria-pressed="false">Canonical state</button>
+          </div>
+
+          <div class="lv-cols pick-0" id="lvCols">
             <div class="lv-col">
               <div class="pg-head"><span class="label">Execution</span></div>
               <div class="run-body" id="runBody">
@@ -3462,6 +3641,8 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
 
   function lvReset() {
     lv([], []);
+    seqBuild();
+    seqReset("not started");
     lvSay("Nothing running yet", "", "");
     $("lvPkgTok").textContent = "no run yet";
     $("lvWorkerName").textContent = "WORKER";
@@ -3489,6 +3670,75 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
       .map(function (k) { return k.replace(/_/g, " ") + " " + obj[k]; }).join(", ");
   }
 
+  // -- the stage list ------------------------------------------------
+  //
+  // The diagram shows where the engine is; this says what it is doing, in
+  // the order it does it, and leaves behind what each stage actually did on
+  // this turn. It is also the only half of the run view that survives a
+  // phone screen, where the diagram is too wide to draw legibly.
+
+  var SEQ_STAGES = [
+    { k: "compile", t: "Compile the context package",
+      d: "The engine reads canonical state and writes one briefing that fits the token budget." },
+    { k: "handover", t: "Hand it to the worker",
+      d: "It goes out as one system message and one user message. No transcript is attached." },
+    { k: "work", t: "The worker answers",
+      d: "A result and a handoff report come back. Both are still only claims at this point." },
+    { k: "reconcile", t: "Check what it claimed",
+      d: "The reconciler decides which claims reach canonical state, and which are refused." },
+    { k: "commit", t: "Write the accepted records",
+      d: "Whatever is kept is stamped with the worker that produced it and saved to SQLite." },
+    { k: "handoff", t: "Record the handoff",
+      d: "An audit line states what crossed to the next worker, and that no conversation did." }
+  ];
+
+  var SEQ_LABEL = { now: "now", done: "done", flag: "refused" };
+
+  function seqBuild() {
+    $("seqList").innerHTML = SEQ_STAGES.map(function (st, i) {
+      return '<li class="sq" id="sq-' + st.k + '">' +
+        '<span class="sq-n">' + (i + 1) + "</span>" +
+        '<span class="sq-t">' + esc(st.t) + "</span>" +
+        '<span class="sq-st">waiting</span>' +
+        '<span class="sq-d">' + esc(st.d) + "</span>" +
+        '<span class="sq-live"></span></li>';
+    }).join("");
+  }
+
+  // "state" is null (waiting), "now", "done" or "flag". "live" is what the
+  // stage did on this turn; pass "" to clear it, or omit to leave it alone.
+  function seqSet(key, state, live) {
+    var el = $("sq-" + key);
+    if (!el) { return; }
+    el.classList.remove("is-now", "is-done", "is-flag");
+    if (state) { el.classList.add("is-" + state); }
+    el.querySelector(".sq-st").textContent = SEQ_LABEL[state] || "waiting";
+    if (live !== undefined) {
+      el.querySelector(".sq-live").textContent = live || "";
+      el.classList.toggle("has-live", !!live);
+    }
+  }
+
+  function seqReset(turn) {
+    SEQ_STAGES.forEach(function (st) { seqSet(st.k, null, ""); });
+    if (turn !== undefined) { $("seqTurn").textContent = turn; }
+  }
+
+  // Below 940px the two run columns do not fit side by side, and stacking
+  // two 600px scroll boxes hands a phone three scroll contexts to fight
+  // over with one thumb. Show one column at a time instead.
+  (function lvSwitchInit() {
+    var sw = $("lvSwitch");
+    sw.querySelectorAll("button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        $("lvCols").className = "lv-cols pick-" + b.dataset.col;
+        sw.querySelectorAll("button").forEach(function (o) {
+          o.setAttribute("aria-pressed", String(o === b));
+        });
+      });
+    });
+  })();
+
   function lvEvent(d) {
     if (d.event === "run_started") {
       buildWRail(d.roster);
@@ -3498,6 +3748,8 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
         d.total + " turns queued");
       $("lvPkgTok").textContent = "compiling";
       $("lvWorkerModel").textContent = "waiting";
+      seqReset("turn 1 of " + d.total);
+      seqSet("compile", "now");
 
     } else if (d.event === "worker_started") {
       CUR_SEQ = d.seq;
@@ -3510,6 +3762,14 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
       lvSay(d.worker_id + " is working",
         "it was handed " + d.package.included_sections.length + " sections of state and no conversation",
         "turn " + d.index + " of " + d.total);
+      seqReset("turn " + d.index + " of " + d.total + " · " + d.worker_id);
+      seqSet("compile", "done",
+        d.package.estimated_tokens + " of " + d.package.token_budget + " tok, " +
+        d.package.included_sections.length + " sections" +
+        (d.package.dropped_items.length ? ", " + d.package.dropped_items.length + " dropped" : ""));
+      seqSet("handover", "done",
+        "to " + d.worker_id + " · " + d.model + " · conversation: none");
+      seqSet("work", "now");
 
     } else if (d.event === "worker_completed") {
       wMark(CUR_SEQ, "done");
@@ -3517,12 +3777,15 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
       lvSay(d.worker_id + " answered",
         "a result and a handoff report, both still only claims",
         d.duration_ms + " ms, " + d.messages_sent + " messages");
+      seqSet("work", "done", d.duration_ms + " ms, " + d.messages_sent + " messages sent");
+      seqSet("reconcile", "now");
 
     } else if (d.event === "worker_failed") {
       wMark(CUR_SEQ, "failed");
       lv([], []);
       lvSay(d.worker_id + " failed",
         "the failure is recorded and the run carries on from state", "");
+      seqSet("work", "flag", "no usable answer — the run carries on from state");
 
     } else if (d.event === "reconciled") {
       var flagged = d.warnings.length + d.rejected_resolutions.length;
@@ -3532,6 +3795,12 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
           ? flagged + (flagged === 1 ? " claim was" : " claims were") + " not taken at face value"
           : "merged into canonical state with provenance stamped by the engine",
         counts(d.accepted) || "nothing new");
+      seqSet("reconcile", flagged ? "flag" : "done",
+        flagged
+          ? flagged + (flagged === 1 ? " claim was" : " claims were") + " not accepted"
+          : "every claim accepted");
+      seqSet("commit", "done", counts(d.accepted) || "nothing new to write");
+      seqSet("handoff", "now");
 
     } else if (d.event === "handoff") {
       var a = d.audit;
@@ -3539,6 +3808,8 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
       lvSay(a.previous_worker + " to " + a.next_worker,
         "canonical state crossed the boundary, conversation did not",
         a.package_tokens + " tok compiled for the next worker");
+      seqSet("handoff", "done", a.previous_worker + " → " + a.next_worker + ", " +
+        a.package_tokens + " tok, 0 conversation");
 
     } else if (d.event === "run_finished") {
       lv(LV_NODES, ["lva-1", "lva-2", "lva-3", "lva-4", "lva-5", "lva-6", "lva-7"]);
@@ -3547,10 +3818,17 @@ details.deepbox[open] > summary { border-bottom: 1px solid var(--rule); margin-b
         s.workers_used + " workers, " + s.structured_handoffs + " handoffs, " +
         s.raw_conversation_transfers + " raw conversation transfers",
         s.total_context_tokens + " tok sent in total");
+      // The last turn has nobody to hand to, so no handoff event arrives and
+      // that stage would otherwise sit on "now" for good.
+      if ($("sq-handoff").classList.contains("is-now")) {
+        seqSet("handoff", "done", "last turn — no worker left to hand to");
+      }
+      $("seqTurn").textContent = "all " + s.workers_used + " turns complete";
 
     } else if (d.event === "run_error") {
       lv([], []);
       lvSay("The run stopped", "", "");
+      $("seqTurn").textContent = "stopped";
     }
   }
 })();
