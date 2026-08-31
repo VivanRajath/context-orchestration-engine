@@ -63,8 +63,24 @@ All notable changes to this project are recorded here. The format follows
 - `vercel.json` asks for `maxDuration: 300`, because a live run is two model
   calls per worker and does not fit in sixty seconds.
 
+- **The page is files rather than one file.** 4,200 lines of markup, style
+  and behaviour in a single document became `index.html`, three stylesheets
+  and nine ES modules with a one-way dependency graph. Still no build step:
+  the browser resolves the imports and FastAPI serves the files.
+- `tests/test_static.py` checks the page the way the rest of the suite checks
+  the Python: every element the script reaches for exists, every import
+  resolves, the module graph has no cycles, nothing is exported that nobody
+  imports, and only the entry point touches the page at import time.
+- One content width. There were eight caps stacked inside one container, so
+  every section began and ended somewhere different; 26 of them are gone and
+  the container decides. Headings and prose wrap on `text-wrap` instead.
+
 ### Fixed
 
+- Three couplings the single file had hidden, all found by the split: the
+  budget widget read a value it never declared, the stage list called a
+  function belonging to the card renderer, and the run view wired a control
+  the moment it was imported.
 - A model id beginning with its own vendor's name (Groq publishes
   `groq/compound`) was reduced to `compound` before the call. The id the vendor
   published is now carried separately from the display string and never

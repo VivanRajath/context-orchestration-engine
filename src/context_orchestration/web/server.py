@@ -32,6 +32,7 @@ from typing import Any, Iterator, Literal
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from context_orchestration.config.demo import DEMO_OBJECTIVE, DEMO_PLAN
@@ -535,11 +536,19 @@ def create_app(workers_path: str | Path | None = None, db: str = "playground.db"
         return SQLiteStore(db)
 
     # -- static ---------------------------------------------------------
+    #
+    # The page is plain HTML, CSS and ES modules: no build step, no bundler,
+    # nothing to keep in sync with the engine. The browser resolves the
+    # imports itself, so these files are served exactly as they are written.
+
+    app.mount("/static", StaticFiles(directory=STATIC), name="static")
 
     @app.get("/", include_in_schema=False)
     def index() -> FileResponse:
-        # No caching: this is a local tool, and a stale UI against a fresh
-        # engine is a confusing way to lose an afternoon.
+        # No caching on the document: this is a local tool, and a stale UI
+        # against a fresh engine is a confusing way to lose an afternoon. The
+        # assets under /static revalidate by ETag instead, which is what
+        # StaticFiles does on its own.
         return FileResponse(
             STATIC / "index.html",
             headers={"Cache-Control": "no-store, must-revalidate"},

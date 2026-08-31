@@ -461,7 +461,13 @@ src/context_orchestration/
   config/
     demo.py              the built-in demonstration task
     workers.example.json shipped starting roster
-tests/                   256 tests
+  web/
+    server.py            FastAPI: config, key inspection, planning, runs
+    static/
+      index.html         markup only
+      css/               base, walkthrough, playground
+      js/                ES modules, no build step
+tests/                   267 tests
 ```
 
 Everything lives under the single `context_orchestration` namespace, so
@@ -473,7 +479,7 @@ asserts that.
 ## Tests
 
 ```bash
-python -m pytest -q      # 256 tests
+python -m pytest -q      # 267 tests
 ```
 
 Beyond unit coverage, the suite asserts the architectural claims directly:
