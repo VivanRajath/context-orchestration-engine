@@ -190,6 +190,7 @@ class ContextOrchestrator:
         policy: SwitchPolicy | None = None,
         worker_factory: Callable[[WorkerConfig, LLMGateway], UniversalWorker] | None = None,
         mock: bool = False,
+        step_budgets: dict[int, int] | None = None,
     ) -> None:
         self.registry = registry
         self.gateway = gateway
@@ -200,6 +201,11 @@ class ContextOrchestrator:
         self.policy = policy or SequentialSwitchPolicy()
         self.worker_factory = worker_factory or UniversalWorker
         self.mock = mock
+        # seq -> how much this one step's worker may be told. Absent means the
+        # compiler's own budget applies, which is the ordinary case; a caller
+        # that wants to spend a total across a plan rather than a fixed amount
+        # per turn fills this in. Nothing else in the loop changes.
+        self.step_budgets = dict(step_budgets or {})
 
     # -- task lifecycle --------------------------------------------------
 
@@ -277,6 +283,7 @@ class ContextOrchestrator:
                 state=state,
                 assigned_task=assignment.task,
                 target_worker_id=assignment.worker_id,
+                token_budget=self.step_budgets.get(assignment.seq),
             )
             self.store.save_package(state.task_id, assignment.seq, package)
             summary.packages_compiled += 1

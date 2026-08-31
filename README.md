@@ -445,12 +445,15 @@ src/context_orchestration/
     orchestrator.py      the loop, worker registry, switch policy
     worker.py            the one and only worker class
     reconciler.py        the trust boundary
+    planner.py           one-shot mode: a sentence into steps, a total into shares
   context/
     state.py             canonical execution state
     compiler.py          relevance scoring, prioritization, token budget
     handoff.py           handoff records, rendering, transfer audit
   gateway/
     llm_gateway.py       LiteLLM gateway + deterministic mock gateway
+    http_gateway.py      the same contract over the standard library
+    providers.py         which vendor issued a key, and what it can run
   storage/
     sqlite_store.py      persistence and resumability
   ui/
@@ -458,7 +461,7 @@ src/context_orchestration/
   config/
     demo.py              the built-in demonstration task
     workers.example.json shipped starting roster
-tests/                   154 tests
+tests/                   256 tests
 ```
 
 Everything lives under the single `context_orchestration` namespace, so
@@ -470,7 +473,7 @@ asserts that.
 ## Tests
 
 ```bash
-python -m pytest -q      # 154 tests
+python -m pytest -q      # 256 tests
 ```
 
 Beyond unit coverage, the suite asserts the architectural claims directly:
