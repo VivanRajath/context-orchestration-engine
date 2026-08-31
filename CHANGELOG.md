@@ -53,6 +53,10 @@ All notable changes to this project are recorded here. The format follows
   model and credential, so one run can cross several vendors at once.
 - `/api/config` reports `serverless`, `live_enabled`, `live_disabled_reason`,
   the provider catalogue, and how many keys the pool holds - never the keys.
+- A finished turn folds itself away, and its header carries the result: how
+  far through the plan the run is, what went into the record, and whether
+  anything was refused. The turn in progress stays open, and so does a failed
+  one. Five open worker cards was several thousand pixels of scrolling.
 - Playground layout uses the width it is given (up to 1460px, with the setup
   side by side above 1080px and the run output in two columns above 1240px)
   instead of a fixed 1000px column.
