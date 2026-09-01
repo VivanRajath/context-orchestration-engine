@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 A model-agnostic orchestration system in which any number of independent LLM
-workers work sequentially on the same task — without passing the conversation
+workers work sequentially on the same task, without passing the conversation
 history between them.
 
 Context here is not something a model owns. It is external, portable execution
@@ -62,7 +62,7 @@ Detail buried in transcript.               Detail is addressable, typed state.
 Nothing is verified.                       Every claim is reconciled.
 ```
 
-In this engine every worker receives exactly two messages — a system prompt and
+In this engine every worker receives exactly two messages: a system prompt and
 one compiled context package. Never a transcript. The run summary reports
 `Raw conversation transfers: 0`, and a test asserts it.
 
@@ -300,7 +300,7 @@ free-form `provider_config` passed through to the gateway.
 
 **The `model` prefix selects the provider, not the key.** `anthropic/...` goes to
 Anthropic, `groq/...` goes to Groq, `openai/...` to OpenAI. A valid key paired
-with the wrong prefix fails with `invalid x-api-key` — the key is being offered
+with the wrong prefix fails with `invalid x-api-key`, because the key is being offered
 to a provider that never issued it. If you swap providers, change `model`, not
 just the credential.
 
@@ -315,7 +315,7 @@ Plan steps and workers are matched automatically:
 
 The shipped demo config runs five workers over four distinct model families on
 five separate org credentials, so every handoff crosses a real model boundary. The
-orchestration layer never learns which is which — a test asserts that no module
+orchestration layer never learns which is which: no module
 above the gateway mentions any provider name.
 
 ---
@@ -330,7 +330,7 @@ worker history and handoff history.
 Its merge helpers are deliberately conservative:
 
 - completed tasks and decisions dedupe on normalized text
-- artifacts are **versioned**, never overwritten — `architecture.md v3` records
+- artifacts are **versioned**, never overwritten. `architecture.md v3` records
   that worker-2 and worker-5 both touched what worker-1 created
 - failed attempts are **append-only**; nothing a later worker says removes them
 
@@ -343,11 +343,11 @@ Reconciler (`core/reconciler.py`) is the boundary between the two, and it
 enforces:
 
 - **Issues are never auto-closed by an unverified claim.** A worker asserting it
-  fixed something gets `resolution_claimed_by` recorded on the issue — and the
+  fixed something gets `resolution_claimed_by` recorded on the issue, and the
   issue stays open. In the demo run, worker-5 claims the refresh-token issue is
   resolved; the engine keeps it open and says so.
-- **Artifacts mentioned only in the handoff report** — never listed in the
-  structured result — are recorded with `verified=False` and flagged, and the
+- **Artifacts mentioned only in the handoff report** (never listed in the
+  structured result) are recorded with `verified=False` and flagged, and the
   next worker sees them labelled `unverified`.
 - **Unplanned completion claims** are recorded but warned about.
 - **Provenance is stamped by the engine**, not self-reported by the model.
@@ -355,7 +355,7 @@ enforces:
   match, missing handoff notes, a decision with no reason) raise warnings that
   persist alongside the execution record.
 
-Artifact validation is intentionally basic in this MVP — `verified` is the seam
+Artifact validation is intentionally basic in this MVP. `verified` is the seam
 where real validation (file existence, content hashing, tool results) plugs in.
 
 ---
@@ -374,14 +374,14 @@ caps, and then fills a configurable token budget in strict priority order:
 
 Anchoring keeps the earliest decisions and failed attempts regardless of score.
 Without it, relevance-plus-recency quietly drops founding choices ("use FastAPI",
-"use UUID primary keys") in favour of recent detail — and the final review worker
+"use UUID primary keys") in favour of recent detail, and the final review worker
 ends up auditing an architecture whose foundations it cannot see. This was a real
 failure observed in a live five-model run, not a hypothetical.
 
 Budget is measured against the *rendered* package rather than a sum of section
 estimates. Anything that does not fit is reported in `omitted_sections` and
 `dropped_items` instead of silently vanishing. The assigned task and objective
-are never dropped — they are truncated as a last resort.
+are never dropped; they are truncated as a last resort.
 
 Token counting uses `tiktoken` when available and falls back to a character/word
 heuristic. `TokenEstimator` is a protocol, so a per-provider tokenizer can
@@ -391,7 +391,7 @@ replace it without touching the compiler.
 
 ## Persistence
 
-SQLite, written after every worker turn — not at the end of a run. Tables cover
+SQLite, written after every worker turn, not at the end of a run. Tables cover
 tasks, per-turn state snapshots, worker executions, handoff reports, compiled
 context packages (including their rendered text), and an append-only event log.
 
@@ -405,7 +405,7 @@ simulates exactly that.
 
 The gateway retries on a provider rate limit, honouring the delay the provider
 itself suggests (`Please try again in 8.4s`) and falling back to exponential
-backoff. A rate limit is a scheduling problem, not a failure — the same worker
+backoff. A rate limit is a scheduling problem, not a failure, so the same worker
 can simply wait.
 
 If you are on a free tier, `max_tokens` is what gets you throttled: providers
@@ -422,7 +422,7 @@ The MVP uses forced sequential switching. The seam for more is already in place:
 `SwitchPolicy` decides which worker handles which step, and
 `SequentialSwitchPolicy` is one implementation. Context-limit, cost, rate-limit,
 availability and capability-based switching are all alternate implementations of
-that one interface — the orchestration loop does not change.
+that one interface, and the orchestration loop does not change.
 
 ---
 
@@ -479,7 +479,7 @@ asserts that.
 ## Tests
 
 ```bash
-python -m pytest -q      # 267 tests
+python -m pytest -q      # 289 tests
 ```
 
 Beyond unit coverage, the suite asserts the architectural claims directly:

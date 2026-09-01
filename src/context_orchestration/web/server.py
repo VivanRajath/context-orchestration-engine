@@ -56,6 +56,7 @@ from context_orchestration.gateway.llm_gateway import (
     missing_keys,
 )
 from context_orchestration.storage.sqlite_store import SQLiteStore
+from context_orchestration.web.counter import VisitCounter
 
 STATIC = Path(__file__).resolve().parent / "static"
 
@@ -567,6 +568,37 @@ def create_app(workers_path: str | Path | None = None, db: str = "playground.db"
             headers={"Cache-Control": "no-store, must-revalidate"},
         )
 
+    # -- visits ---------------------------------------------------------
+    #
+    # The number of people who have opened the page. Counted on the server,
+    # because a number the browser makes up is not a number. See counter.py
+    # for why it is not kept in the run database.
+
+    def counter() -> VisitCounter:
+        return VisitCounter(db)
+
+    def visits(count: VisitCounter, total: int) -> dict:
+        # `durable` is the page's licence to show the figure at all. A store
+        # that resets when the host recycles an instance can report a real
+        # number that is not the total, and the page would rather say nothing.
+        return {"views": total, "durable": count.durable}
+
+    @app.get("/api/visits")
+    def read_visits() -> dict:
+        count = counter()
+        return visits(count, count.total())
+
+    @app.post("/api/visits")
+    def add_visit() -> dict:
+        """One opening. The browser sends this once per session, not per page.
+
+        Reloading, following a link back, and opening the playground in a
+        second tab are the same person still reading, and counting them again
+        would make the number a page-view count wearing the wrong label.
+        """
+        count = counter()
+        return visits(count, count.bump())
+
     # -- health ---------------------------------------------------------
 
     @app.get("/api/health", include_in_schema=False)
@@ -610,6 +642,8 @@ def create_app(workers_path: str | Path | None = None, db: str = "playground.db"
             "live_enabled": live_enabled(),
             "pool": pool_info(),
             "db": db,
+            "counter": "redis" if counter().remote else "sqlite",
+            "counter_durable": counter().durable,
         }
 
     # -- config ---------------------------------------------------------

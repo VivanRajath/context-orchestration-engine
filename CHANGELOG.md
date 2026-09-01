@@ -8,6 +8,23 @@ All notable changes to this project are recorded here. The format follows
 
 ### Added
 
+- **The visit count.** The page says how many people have opened it, counted
+  on the server, once per browser session rather than once per page load. It
+  is not a row in the run database: that database lives under `/tmp` on a
+  serverless host, which is per-instance and vanishes with the instance, so a
+  total kept there would restart at zero several times a day. Point
+  `COE_COUNTER_URL` and `COE_COUNTER_TOKEN` at a Redis over HTTP (or add
+  Vercel's KV integration, whose own variable names are read too) and the
+  figure is durable. Without one the endpoint reports `durable: false` and the
+  page hides the badge rather than showing an undercount as the total.
+- **`GET /api/health`.** What an instance is, from inside it: Python version,
+  installed package versions, whether the static tree arrived and which files
+  are in it, the deployment flags, and which store the counter found. No key.
+- **The questions fold away.** Fourteen answers laid out flat is a wall, and
+  the part a reader scans is the questions, so closed, the section is exactly
+  that list. They open independently, and the list runs single file: opening
+  an item in a two-column grid shoves the other column down, which moves the
+  thing you were not reading.
 - **A gateway with no dependencies.** `gateway/http_gateway.py` speaks the
   OpenAI request shape over the standard library, with a small adapter for
   Anthropic's. It satisfies the same `LLMGateway` protocol as `LiteLLMGateway`,
@@ -30,7 +47,7 @@ All notable changes to this project are recorded here. The format follows
 - `POST /api/keys/inspect` and `POST /api/plan/split`.
 - Per-step context budgets: `ContextOrchestrator(step_budgets={seq: tokens})`.
 
-- `POST /api/runs/stream` — starts a run and streams its events inside one
+- `POST /api/runs/stream` starts a run and streams its events inside one
   request, for hosts that freeze an instance between invocations and route each
   request independently. The local two-request path (`POST /api/runs` plus an
   `EventSource`) is unchanged and still the default.
@@ -75,8 +92,32 @@ All notable changes to this project are recorded here. The format follows
   every section began and ended somewhere different; 26 of them are gone and
   the container decides. Headings and prose wrap on `text-wrap` instead.
 
+### Changed
+
+- The page no longer names the source tree. Which file a class lives in, how
+  many tests cover it and which database happens to be underneath are all true
+  and all somebody else's business on a page whose job is to explain a way of
+  working. The roadmap went with them.
+- No em dashes anywhere in the project. One mark standing in for a colon, a
+  comma, a semicolon, a full stop and a pair of brackets makes the reader work
+  out which was meant; 83 of them are now the punctuation they stood in for.
+- The deploy requirements are pinned rather than floored. `>=` resolves against
+  whatever the index holds that morning, so the bundle is assembled differently
+  on every deploy and an overnight release can break a site nobody touched.
+  `pyproject.toml` keeps the open ranges for people installing the library.
+
 ### Fixed
 
+- **One missing file could take the whole deployment down.** `StaticFiles`
+  checks its directory in the constructor, and the constructor runs while the
+  module is being imported, so a build that did not carry `web/static` did not
+  lose its stylesheet, it lost the site: every URL answered with the host's own
+  crash page. `check_dir` is off, a missing asset costs the routes that serve
+  assets, and the document explains itself instead of throwing. The entry point
+  now wraps the whole construction as well: if the app cannot be built, a plain
+  ASGI app serves the traceback and a listing of what actually arrived, because
+  a dead deployment should say why rather than leaving the reason in a log the
+  person looking at the site cannot read.
 - Three couplings the single file had hidden, all found by the split: the
   budget widget read a value it never declared, the stage list called a
   function belonging to the card renderer, and the run view wired a control

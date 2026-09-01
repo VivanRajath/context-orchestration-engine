@@ -172,13 +172,9 @@ input[type=password].filled { border-color: var(--kept); }
 .wc-tag.kept { color: var(--kept); }
 .wc-tag.flag { color: var(--dropped); }
 
-/* A caret, so it reads as something that opens rather than something that
-   was cut off. */
-.chev {
-  width: 7px; height: 7px; flex: none; margin-left: .1rem;
-  border-right: 2px solid var(--slate); border-bottom: 2px solid var(--slate);
-  transform: rotate(-135deg); transition: transform .15s ease;
-}
+/* The caret itself is in base.css. A worker card starts open, so it points
+   up until the turn is folded away. */
+.wc .chev { transform: rotate(-135deg); }
 .wc.closed .chev { transform: rotate(45deg); }
 
 .wc.done { border-color: var(--kept); }

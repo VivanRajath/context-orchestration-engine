@@ -5,6 +5,8 @@ import { $, esc } from "./dom.js";
 import { initTheme } from "./theme.js";
 import { initWalkthrough } from "./walkthrough.js";
 import { initBudget } from "./budget.js";
+import { initFaq } from "./faq.js";
+import { initVisits } from "./visits.js";
 import { lvReset } from "./live.js";
 import {
   initSetup, addKey, askForAPlan, buildRunBody, checkKeys, config,
@@ -16,6 +18,8 @@ import { initRunView, isRunning, startRun, streamRun } from "./run.js";
 initTheme();
 initWalkthrough();
 initBudget();
+initFaq();
+initVisits();
 initRunView();
 
 // -- controls ---------------------------------------------------------

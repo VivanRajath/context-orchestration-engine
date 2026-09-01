@@ -44,12 +44,12 @@
     <span class="label">An idea about how machines should hand work to each other</span>
     <h1>Context is<br>infrastructure,<br>not conversation.</h1>
     <p class="deck">Five independent language models worked one continuous task. <b>None of them saw another one's conversation.</b></p>
-    <p class="hero-note">An AI model forgets everything the moment its session ends. So when a long job has to pass between several of them, the usual answer is to replay the entire conversation to the next one &mdash; which gets slower, more expensive and less useful at every step. The idea here is to stop passing the conversation at all, and keep the work itself in a record that no model owns.</p>
+    <p class="hero-note">An AI model forgets everything the moment its session ends. So when a long job has to pass between several of them, the usual answer is to replay the entire conversation to the next one, which gets slower, more expensive and less useful at every step. The idea here is to stop passing the conversation at all, and keep the work itself in a record that no model owns.</p>
     <p class="hero-note">Further down, five models take one job and finish it that way, live, while you watch. You can read what each of them was told, and check for yourself that none of them ever saw another's conversation.</p>
     <div class="nextup" style="margin-top:2rem">
       <span class="label">Start</span>
       <a href="#start">The idea, in plain words</a>
-      <span class="why">Two minutes. Then you can watch it happen &mdash; no sign-up, no key, nothing to install.</span>
+      <span class="why">Two minutes. Then you can watch it happen: no sign-up, no key, nothing to install.</span>
     </div>
   </section>
 
@@ -69,15 +69,15 @@
 
     <div class="plain">
       <span class="label">In plain words</span>
-      <p>Imagine five people take turns building one big Lego castle &mdash; but each person completely forgets everything the moment they hand over. How does the fifth person know not to rebuild the front gate that the second person already finished?</p>
+      <p>Imagine five people take turns building one big Lego castle, but each person completely forgets everything the moment they hand over. How does the fifth person know not to rebuild the front gate that the second person already finished?</p>
       <p>One answer is to tell every new person the entire story of the whole day. That gets very long very fast, and the few important bits end up buried in the middle of it.</p>
       <p>The idea is to stop retelling the story. Instead, keep a <b>notebook that belongs to the table</b> rather than to any of the builders. The notebook holds what is finished, what was decided and <i>why</i>, what was tried and did not work, and what to do next.</p>
-      <p>Before each new person starts, a helper reads the notebook and writes them one short briefing that fits on a single sheet. That sheet is all they get. No story, no chat &mdash; just the sheet. And crucially, nobody may quietly cross something out of the notebook: if you claim you fixed a problem and nobody checked, the problem stays written down.</p>
-      <p>It works. Five different AI models, from four different companies, each with its own separate password, finished one job together &mdash; and not one of them ever read another one's conversation.</p>
+      <p>Before each new person starts, a helper reads the notebook and writes them one short briefing that fits on a single sheet. That sheet is all they get. No story, no chat. Just the sheet. And crucially, nobody may quietly cross something out of the notebook: if you claim you fixed a problem and nobody checked, the problem stays written down.</p>
+      <p>It works. Five different AI models, from four different companies, each with its own separate password, finished one job together, and not one of them ever read another one's conversation.</p>
     </div>
 
     <div class="col" style="margin-top:2rem">
-      <p>In engineering terms: a model's working context dies with its session, and both usual ways of continuing a task in a new session fail. Replaying the transcript grows without bound. Summarising it loses exactly the things that matter &mdash; why a decision was made, what already failed, and what the precise next action is.</p>
+      <p>In engineering terms: a model's working context dies with its session, and both usual ways of continuing a task in a new session fail. Replaying the transcript grows without bound. Summarising it loses exactly the things that matter: why a decision was made, what already failed, and what the precise next action is.</p>
       <p>So the state of work is held outside every model. Each worker returns a result and a report for its successor; those are treated as claims and merged into the record by something that stamps the attribution itself and refuses to close anything unverified; then the record plus the next assignment is compiled into one bounded briefing. The next worker gets that briefing and nothing else.</p>
     </div>
 
@@ -87,52 +87,12 @@
         <span class="deepbox-sub">types, invariants and cost</span>
       </div>
       <div class="dbody">
-        <p>Continuity across heterogeneous LLM sessions is modelled as an <b>externalised, typed, append-biased execution state</b> rather than as message history. <span class="mono">ExecutionState</span> is a Pydantic aggregate &mdash; objective, completed and pending tasks, decisions with reasons, versioned artifacts, issues, append-only failed attempts, assumptions, progress, last and next action, worker and handoff history. It is owned by the orchestrator; no worker holds a reference that outlives its turn.</p>
+        <p>Continuity across heterogeneous LLM sessions is modelled as an <b>externalised, typed, append-biased execution state</b> rather than as message history. <span class="mono">ExecutionState</span> is a Pydantic aggregate: objective, completed and pending tasks, decisions with reasons, versioned artifacts, issues, append-only failed attempts, assumptions, progress, last and next action, worker and handoff history. It is owned by the orchestrator; no worker holds a reference that outlives its turn.</p>
         <p>Each turn is stateless in the way that matters: <span class="mono">compile(state, assignment, budget)</span> is deterministic, and the message array handed to the provider is rebuilt from scratch every turn and always has length two. There is no accumulator into which a prior transcript could leak, which is why <span class="mono">raw_conversation_transfers == 0</span> is an assertable structural invariant rather than a convention someone has to remember.</p>
         <p>Transcript replay costs <span class="mono">O(n&sup2;)</span> tokens across <span class="mono">n</span> handoffs. A compiled package costs <span class="mono">O(n&middot;B)</span> for a fixed budget <span class="mono">B</span>, and the interesting engineering is entirely in how the compiler spends <span class="mono">B</span>: relevance scoring against the pending assignment, a recency blend, per-category caps, and an anchoring rule that pins founding decisions so recent detail cannot outrank them.</p>
         <p>The second axis is trust. Model output is treated as a claim from an untrusted origin, and <span class="mono">StateReconciler</span> is the only component permitted to write canonical state. Its four invariants, the compile algorithm and the failure semantics are all in <a href="#deep">Internals</a>.</p>
       </div>
     </div>
-
-    <div class="shead" style="margin-top:3.5rem; margin-bottom:1.5rem">
-      <span class="label">Roadmap</span>
-      <h2>Then follow this path</h2>
-      <p>You do not have to read this page top to bottom. This is the order that makes each part land, with the time each one actually takes.</p>
-    </div>
-
-    <ol class="path">
-      <li>
-        <span class="pn">01</span>
-        <span><a href="#objective">Understand the problem being solved</a>
-          <span class="pd">Why replaying a conversation fails, and why summarising it fails differently. Skip only if you have already hit this problem yourself.</span></span>
-        <span class="mins">2 min</span>
-      </li>
-      <li>
-        <span class="pn">02</span>
-        <span><a href="#parts">Meet the eight parts</a>
-          <span class="pd">All eight are named again during the live run, so knowing them turns the playground from noise into something readable.</span></span>
-        <span class="mins">3 min</span>
-      </li>
-      <li>
-        <span class="pn">03</span>
-        <span><a href="#walkthrough">Step through one worker's turn</a>
-          <span class="pd">Seven stages, each showing the real object the engine produced. This is the single most useful thing on the page.</span></span>
-        <span class="mins">5 min</span>
-      </li>
-      <li>
-        <span class="pn">04</span>
-        <span><a href="#playground">Run it yourself</a>
-          <span class="pd">Four steps, no key needed, finishes in seconds. The page tells you what to do at each step and what to watch for while it runs.</span></span>
-        <span class="mins">5 min</span>
-      </li>
-      <li>
-        <span class="pn">05</span>
-        <span><a href="#deep">Look inside the machinery</a>
-          <span class="pd">The rules the record obeys, how the briefing is chosen, what happens when something fails, and what this deliberately does not attempt.</span></span>
-        <span class="mins">10 min</span>
-      </li>
-    </ol>
-
     <div class="nextup">
       <span class="label">Stuck on a word</span>
       <a href="#glossary">Every term on this page is defined twice</a>
@@ -155,11 +115,11 @@
 
     <div class="plain">
       <span class="label">In plain words</span>
-      <p>An AI assistant only remembers things while you are talking to it. Close the window and its memory is gone &mdash; not hidden somewhere, actually gone.</p>
+      <p>An AI assistant only remembers things while you are talking to it. Close the window and its memory is gone. Not hidden somewhere, actually gone.</p>
       <p>So if one AI does half a job and a different one has to finish it, how does the second one find out what happened? There are two obvious ideas, and both have a problem.</p>
       <ul>
         <li><b>Tell it the whole story.</b> Every word of every conversation so far. But that story keeps growing. By the fifth handover it is enormous, most of it no longer matters, and the few sentences that really do matter are lost in the middle. It also costs more every single time, because these models charge by how much you send them.</li>
-        <li><b>Tell it a short summary.</b> Shorter, yes &mdash; but summaries throw away exactly the wrong things. A summary keeps "we built the door" and drops "we tried a sliding door first and it jammed". So the next person builds a sliding door, and it jams again.</li>
+        <li><b>Tell it a short summary.</b> Shorter, yes, but summaries throw away exactly the wrong things. A summary keeps "we built the door" and drops "we tried a sliding door first and it jammed". So the next person builds a sliding door, and it jams again.</li>
       </ul>
       <p>This project stops trying to pass the memory along at all. The important facts live in a notebook the <b>system</b> owns, and each new worker gets a fresh, short briefing written from that notebook. The workers come and go. The notebook stays.</p>
     </div>
@@ -171,9 +131,9 @@
       </div>
       <div class="dbody">
         <h4>Transcript replay is quadratic and degrades</h4>
-        <p>Replaying history into worker <span class="mono">n</span> sends roughly the sum of all prior turns, so cumulative tokens across a run grow as <span class="mono">O(n&sup2;)</span> while per-call latency grows linearly. Worse, the prompt's signal-to-noise ratio falls monotonically: the fraction of the window occupied by material relevant to the <em>current</em> assignment shrinks with every turn, which is the mechanism behind the familiar "lost in the middle" degradation. It is also model-bound &mdash; a transcript carries one provider's message roles, tool-call encodings and formatting conventions, so switching families mid-task means translating a growing artifact you did not design.</p>
+        <p>Replaying history into worker <span class="mono">n</span> sends roughly the sum of all prior turns, so cumulative tokens across a run grow as <span class="mono">O(n&sup2;)</span> while per-call latency grows linearly. Worse, the prompt's signal-to-noise ratio falls monotonically: the fraction of the window occupied by material relevant to the <em>current</em> assignment shrinks with every turn, which is the mechanism behind the familiar "lost in the middle" degradation. It is also model-bound: a transcript carries one provider's message roles, tool-call encodings and formatting conventions, so switching families mid-task means translating a growing artifact you did not design.</p>
         <h4>Summarisation is lossy in a biased direction</h4>
-        <p>A summariser optimises for narrative compression, and the material it discards first is precisely what a successor needs: the <em>reason</em> attached to a decision (which is what lets a later worker judge whether the decision still applies), negative results, and exact cursor position. Negative results are the sharpest case &mdash; low narrative salience, high operational value &mdash; so they are systematically the first casualties, and re-deriving one costs a full wasted turn.</p>
+        <p>A summariser optimises for narrative compression, and the material it discards first is precisely what a successor needs: the <em>reason</em> attached to a decision (which is what lets a later worker judge whether the decision still applies), negative results, and exact cursor position. Negative results are the sharpest case (low narrative salience, high operational value), so they are systematically the first casualties, and re-deriving one costs a full wasted turn.</p>
         <h4>The position taken here</h4>
         <p>Model context is treated as a cache; the system of record is a typed aggregate with explicit categories. That distinction is what lets the compiler make a <em>category-aware</em> budgeting decision rather than a token-level one. It is the reason <span class="mono">failed_attempts</span> exists as a first-class field with its own priority slot and its own append-only rule, instead of being a sentence inside a summary that the next compression pass can quietly delete.</p>
       </div>
@@ -183,7 +143,7 @@
       <span class="label">Verification</span>
       <h2>What is being tested</h2>
     </div>
-    
+
     <dl class="fields">
       <div class="field"><dt>The claim</dt><dd>N independent workers can complete one continuous task with zero conversation passed between them.</dd></div>
       <div class="field"><dt>The mechanism</dt><dd>Persistent execution state, mandatory handoff reports, state reconciliation, and context compilation.</dd></div>
@@ -235,53 +195,53 @@
       <span class="label">The eight parts, as a school project</span>
       <p>Picture a group project where only one person may work at a time, and each person forgets everything when their turn ends. Here is who does what.</p>
       <ul>
-        <li><b>The notebook</b> &mdash; <i>Execution State.</i> The one true record of the project. What is done, what was decided and why, what broke, what to do next. The teacher keeps it, not the students.</li>
-        <li><b>The student</b> &mdash; <i>Universal Worker.</i> Any student, any subject. They walk in, read their briefing sheet, do their bit, and walk out. They remember nothing afterwards, and there is only one kind of student.</li>
-        <li><b>The homework sheet</b> &mdash; <i>Worker Result.</i> What the student hands in: what they did, decided, made and broke. Just what they <i>say</i> happened, mind you. Nobody has checked it yet.</li>
-        <li><b>The note to the next student</b> &mdash; <i>Handoff Report.</i> A second thing every student must write, addressed to whoever comes next: where I stopped, what to watch out for, what not to assume is finished.</li>
-        <li><b>The teacher</b> &mdash; <i>State Reconciler.</i> Reads both, copies the true parts into the notebook, crosses out repeats, and writes down anything that looked doubtful. If a student says "I fixed it" and nobody checked, the teacher leaves the problem in the notebook as still broken.</li>
-        <li><b>The briefing writer</b> &mdash; <i>Context Compiler.</i> Reads the whole notebook and writes the next student a one-page sheet. Only one page. So it has to decide what matters most and leave the rest out on purpose.</li>
-        <li><b>The sheet itself</b> &mdash; <i>Handoff Package.</i> The one page that gets handed over, with a note at the bottom saying what had to be left off to make it fit.</li>
-        <li><b>The phone and the filing cabinet</b> &mdash; <i>LLM Gateway</i> and <i>Store.</i> The phone is the only thing allowed to call the AI companies. The filing cabinet saves the notebook after every single turn, so if the lights go out, nothing is lost.</li>
+        <li><b>The notebook</b>: <i>Execution State.</i> The one true record of the project. What is done, what was decided and why, what broke, what to do next. The teacher keeps it, not the students.</li>
+        <li><b>The student</b>: <i>Universal Worker.</i> Any student, any subject. They walk in, read their briefing sheet, do their bit, and walk out. They remember nothing afterwards, and there is only one kind of student.</li>
+        <li><b>The homework sheet</b>: <i>Worker Result.</i> What the student hands in: what they did, decided, made and broke. Just what they <i>say</i> happened, mind you. Nobody has checked it yet.</li>
+        <li><b>The note to the next student</b>: <i>Handoff Report.</i> A second thing every student must write, addressed to whoever comes next: where I stopped, what to watch out for, what not to assume is finished.</li>
+        <li><b>The teacher</b>: <i>State Reconciler.</i> Reads both, copies the true parts into the notebook, crosses out repeats, and writes down anything that looked doubtful. If a student says "I fixed it" and nobody checked, the teacher leaves the problem in the notebook as still broken.</li>
+        <li><b>The briefing writer</b>: <i>Context Compiler.</i> Reads the whole notebook and writes the next student a one-page sheet. Only one page. So it has to decide what matters most and leave the rest out on purpose.</li>
+        <li><b>The sheet itself</b>: <i>Handoff Package.</i> The one page that gets handed over, with a note at the bottom saying what had to be left off to make it fit.</li>
+        <li><b>The phone and the filing cabinet</b>: <i>LLM Gateway</i> and <i>Store.</i> The phone is the only thing allowed to call the AI companies. The filing cabinet saves the notebook after every single turn, so if the lights go out, nothing is lost.</li>
       </ul>
     </div>
 
     <dl class="fields">
       <div class="field">
-        <dt>Execution State<small>context/state.py</small></dt>
+        <dt>Execution State</dt>
         <dd>The canonical record of the work. Objective, completed and pending tasks, decisions with reasons, artifacts, issues, failed attempts, assumptions, progress, last action, next action, and the full worker and handoff history. The engine owns this. No model does.</dd>
       </div>
       <div class="field">
-        <dt>Universal Worker<small>core/worker.py</small></dt>
+        <dt>Universal Worker</dt>
         <dd>One class, for every model. A worker is a configuration plus a gateway, with no memory between turns. It does not know whether it is the first worker or the hundredth.</dd>
       </div>
       <div class="field">
-        <dt>Worker Result<small>core/contracts.py</small></dt>
+        <dt>Worker Result</dt>
         <dd>The structured output a worker returns after doing its work. Validated by Pydantic. Treated as a claim, never as fact.</dd>
       </div>
       <div class="field">
-        <dt>Handoff Report<small>core/contracts.py</small></dt>
+        <dt>Handoff Report</dt>
         <dd>A second, separate output every worker must produce, addressed to its successor. What was completed, what state things are in, what was decided and why, what failed, what is assumed, where it stopped, and what the next worker absolutely needs to know.</dd>
       </div>
       <div class="field">
-        <dt>State Reconciler<small>core/reconciler.py</small></dt>
+        <dt>State Reconciler</dt>
         <dd>The trust boundary. Merges the worker's claims into canonical state, deduplicates, stamps <span class="gloss" tabindex="0" data-def="Who recorded this and when. The engine writes it from the worker id and the server clock, so a model can never sign its own name to a record.">provenance</span> itself, and records every discrepancy it noticed. This is the component that refuses to close an issue on an unverified assertion.</dd>
       </div>
       <div class="field">
-        <dt>Context Compiler<small>context/compiler.py</small></dt>
+        <dt>Context Compiler</dt>
         <dd>Turns the full canonical state plus the next assigned task into a bounded, prioritized package. Scores every item for relevance, <span class="gloss" tabindex="0" data-def="Always keeps the earliest decisions and dead ends, even when newer items score higher, because otherwise the last worker cannot see the foundations it is judging.">anchors</span> the founding decisions, and fills a configurable <span class="gloss" tabindex="0" data-def="A size limit on each briefing, measured on the rendered text. It forces the engine to choose what matters most instead of dumping everything.">token budget</span> in strict priority order.</dd>
       </div>
       <div class="field">
-        <dt>Handoff Package<small>core/contracts.py</small></dt>
+        <dt>Handoff Package</dt>
         <dd>What the compiler produces and the next worker actually receives. Plain structured text with an explicit record of what was included, what was omitted, and how many tokens it cost.</dd>
       </div>
       <div class="field">
-        <dt>LLM Gateway<small>gateway/llm_gateway.py</small></dt>
+        <dt>LLM Gateway</dt>
         <dd>The only module allowed to know providers exist, and even it delegates to LiteLLM. Ships with a live gateway and a deterministic offline mock so the whole architecture runs with no keys at all.</dd>
       </div>
       <div class="field">
-        <dt>Store<small>storage/sqlite_store.py</small></dt>
-        <dd>SQLite persistence written after every worker turn, not at the end of a run. Holds state snapshots, worker executions, handoff reports, compiled packages, and an append-only event log. This is what makes a task resumable after a crash.</dd>
+        <dt>Store</dt>
+        <dd>Written to disk after every worker turn, not at the end of a run. Holds state snapshots, worker executions, handoff reports, compiled packages, and an append-only event log. This is what makes a task resumable after a crash.</dd>
       </div>
     </dl>
 
@@ -292,13 +252,13 @@
       </div>
       <div class="dbody">
         <h4>The dependency rule</h4>
-        <p>Dependencies point one way: <span class="mono">orchestrator &rarr; {worker, reconciler, compiler, store}</span>, and only <span class="mono">worker &rarr; gateway</span>. Nothing above the gateway imports a provider SDK or names a provider, and the gateway itself delegates to LiteLLM rather than branching per vendor. That is not a style preference &mdash; it is what makes "swap the model family mid-run" a configuration change instead of a code change, and a test asserts it by scanning the module source for provider names.</p>
+        <p>Dependencies point one way: <span class="mono">orchestrator &rarr; {worker, reconciler, compiler, store}</span>, and only <span class="mono">worker &rarr; gateway</span>. Nothing above the gateway imports a provider SDK or names a provider, and the gateway itself delegates to LiteLLM rather than branching per vendor. That is not a style preference. It is what makes "swap the model family mid-run" a configuration change instead of a code change.</p>
         <h4>Claims versus records</h4>
-        <p>Two contract families live in <span class="mono">core/contracts.py</span> and the split is deliberate. <span class="mono">WorkerResult</span> and <span class="mono">HandoffReport</span> are <em>claim</em> types: they are whatever a model produced, validated for shape only. <span class="mono">Decision</span>, <span class="mono">Artifact</span>, <span class="mono">Issue</span> and friends inside <span class="mono">ExecutionState</span> are <em>record</em> types, and they carry fields a worker structurally cannot populate &mdash; <span class="mono">recorded_by</span>, <span class="mono">recorded_at</span>, <span class="mono">verified</span>. Because provenance lives only on the record side, a model cannot assert its own authorship or its own verification status.</p>
+        <p>Two contract families sit side by side, and the split is deliberate. <span class="mono">WorkerResult</span> and <span class="mono">HandoffReport</span> are <em>claim</em> types: they are whatever a model produced, validated for shape only. <span class="mono">Decision</span>, <span class="mono">Artifact</span>, <span class="mono">Issue</span> and friends inside <span class="mono">ExecutionState</span> are <em>record</em> types, and they carry fields a worker structurally cannot populate: <span class="mono">recorded_by</span>, <span class="mono">recorded_at</span>, <span class="mono">verified</span>. Because provenance lives only on the record side, a model cannot assert its own authorship or its own verification status.</p>
         <h4>Why exactly one worker class</h4>
-        <p>A per-model worker subclass is the obvious design and it is a trap: capability drift creeps into the class hierarchy, and within a few months "which worker can do X" is decided by inheritance instead of configuration. Here a worker is <span class="mono">WorkerConfig + Gateway</span>, and everything that varies &mdash; model string, credential, temperature, token ceiling, role label &mdash; is data read from <span class="mono">workers.json</span> at runtime. A test asserts exactly one worker class exists, which keeps the shortcut from being reintroduced later.</p>
+        <p>A per-model worker subclass is the obvious design and it is a trap: capability drift creeps into the class hierarchy, and within a few months "which worker can do X" is decided by inheritance instead of configuration. Here a worker is <span class="mono">WorkerConfig + Gateway</span>, and everything that varies (model string, credential, temperature, token ceiling, role label) is configuration read at runtime.</p>
         <h4>Two model calls per turn, not one</h4>
-        <p>The result and the handoff report are separate calls with separate prompts. Merging them into one schema is cheaper and measurably worse: asked in the same breath to report success and to warn its successor, a model biases both toward the same tone. Asking separately, after telling the model its turn is over, is what surfaces "do not assume the refresh-token issue is solved". The cost is one extra call per turn, and on a rate-limited free tier that cost is the binding constraint &mdash; which is why <span class="mono">max_tokens</span> defaults to 2,200 rather than something larger.</p>
+        <p>The result and the handoff report are separate calls with separate prompts. Merging them into one schema is cheaper and measurably worse: asked in the same breath to report success and to warn its successor, a model biases both toward the same tone. Asking separately, after telling the model its turn is over, is what surfaces "do not assume the refresh-token issue is solved". The cost is one extra call per turn, and on a rate-limited free tier that cost is the binding constraint, which is why <span class="mono">max_tokens</span> defaults to 2,200 rather than something larger.</p>
       </div>
     </div>
 
@@ -318,9 +278,9 @@
 
     <div class="plain">
       <span class="label">In plain words</span>
-      <p>Think of a relay race. The runners never merge into one person &mdash; they just pass a baton. What matters is what is <i>on</i> the baton.</p>
+      <p>Think of a relay race. The runners never merge into one person; they just pass a baton. What matters is what is <i>on</i> the baton.</p>
       <p>Here the baton carries: what has been finished, what was decided and the reason for it, what was tried and failed, what is still broken, and what to do next. Short, useful, checked.</p>
-      <p>What the baton never carries: the previous runner's conversation, their thinking, who they were, or their password. Not because someone remembered to strip it out &mdash; but because the engine never wrote it down in the first place. There is nothing there to leak.</p>
+      <p>What the baton never carries: the previous runner's conversation, their thinking, who they were, or their password. Not because someone remembered to strip it out, but because the engine never wrote it down in the first place. There is nothing there to leak.</p>
       <p>That is the dotted red line in the picture below. Everything above it simply does not exist as far as the next worker is concerned.</p>
     </div>
 
@@ -330,8 +290,8 @@
         <span class="deepbox-sub">message construction and the audit record</span>
       </div>
       <div class="dbody">
-        <p>Every model call is constructed as exactly <span class="mono">[{role: "system", ...}, {role: "user", package.rendered_text}]</span>. The list is built fresh inside the worker on each turn; there is no instance-level message buffer, no session id, no thread handle, and no provider-side conversation object. Isolation here is structural rather than procedural &mdash; there is no code path that <em>could</em> append a prior turn, so it cannot be forgotten or regressed by a later change.</p>
-        <p>Each handoff also emits a <span class="mono">TransferAudit</span> record (<span class="mono">context/handoff.py</span>) carrying <span class="mono">raw_conversation_transferred</span>, <span class="mono">canonical_state_transferred</span>, <span class="mono">handoff_report_included</span>, the included and omitted section lists, and the package's token cost against its budget. It is persisted, not merely logged, so the claim "no conversation crossed" is auditable after the fact from the database rather than trusted from a run's stdout. The run summary aggregates it as <span class="mono">raw_conversation_transfers</span>, and a test asserts that value is zero across a full multi-worker run.</p>
+        <p>Every model call is constructed as exactly <span class="mono">[{role: "system", ...}, {role: "user", package.rendered_text}]</span>. The list is built fresh inside the worker on each turn; there is no instance-level message buffer, no session id, no thread handle, and no provider-side conversation object. Isolation here is structural rather than procedural: there is no code path that <em>could</em> append a prior turn, so it cannot be forgotten or regressed by a later change.</p>
+        <p>Each handoff also emits a <span class="mono">TransferAudit</span> record carrying <span class="mono">raw_conversation_transferred</span>, <span class="mono">canonical_state_transferred</span>, <span class="mono">handoff_report_included</span>, the included and omitted section lists, and the package's token cost against its budget. It is persisted, not merely logged, so the claim "no conversation crossed" is auditable after the fact from the database rather than trusted from a run's stdout. The run summary aggregates it, and across a full multi-worker run that count is zero.</p>
         <p>The credential boundary is separate and narrower still. A key resolves inside the gateway from <span class="mono">api_key_env</span> or an in-memory <span class="mono">WorkerConfig</span> field; it is never a parameter of state, never serialised into a package, and never written to any of the six tables. Keys pasted into the playground live for the duration of one run.</p>
       </div>
     </div>
@@ -359,7 +319,7 @@
           <line x1="475" y1="194" x2="475" y2="238" stroke="var(--slate)" stroke-width="1.5" marker-end="url(#ar)"></line>
           <rect x="330" y="238" width="290" height="62" fill="var(--kept-bg)" stroke="var(--kept)" stroke-width="1.5"></rect>
           <text x="475" y="264" class="svg-text" fill="var(--kept)" text-anchor="middle">CANONICAL EXECUTION STATE</text>
-          <text x="475" y="284" class="svg-mono" fill="var(--kept)" text-anchor="middle">persisted to SQLite after every turn</text>
+          <text x="475" y="284" class="svg-mono" fill="var(--kept)" text-anchor="middle">written to disk after every turn</text>
           <path d="M 620 269 L 700 269 L 700 182" fill="none" stroke="var(--slate)" stroke-width="1.5" marker-end="url(#ar)"></path>
           <rect x="625" y="120" width="150" height="62" fill="none" stroke="var(--rule-strong)"></rect>
           <text x="700" y="145" class="svg-text" fill="var(--ink)" text-anchor="middle">COMPILER</text>
@@ -379,7 +339,7 @@
     <div class="shead" style="margin-top:3.5rem; margin-bottom:1.5rem">
       <span class="label">Step by Step</span>
       <h2 id="walkthrough">One turn, step by step</h2>
-      <p>Below is a single worker's turn taken apart. The numbers, the package text, the JSON and the reconciler verdict are all from a real run of the demo task in the playground &mdash; worker three, picking up a design it has never seen, from two models it has never met.</p>
+      <p>Below is a single worker's turn taken apart. The numbers, the package text, the JSON and the reconciler verdict are all from a real run of the demo task in the playground: worker three, picking up a design it has never seen, from two models it has never met.</p>
     </div>
 
     <div class="wt">
@@ -451,7 +411,7 @@
           </g>
           <g class="wt-node" id="wn-store">
             <rect x="212" y="160" width="150" height="58"></rect>
-            <text x="287" y="184" class="svg-text" text-anchor="middle">SQLITE</text>
+            <text x="287" y="184" class="svg-text" text-anchor="middle">THE RECORD</text>
             <text x="287" y="203" class="svg-mono" text-anchor="middle">written every turn</text>
           </g>
           <g class="wt-arrow" id="wa-7">
@@ -503,8 +463,8 @@
 
     <div class="plain">
       <span class="label">In plain words</span>
-      <p>Packing a suitcase with a weight limit. You cannot take everything, so you have to decide what matters most &mdash; and you decide <i>before</i> you start packing, not by grabbing whatever is nearest.</p>
-      <p>The order here is fixed: your job first, then the goal, then what has been done, then the decisions and why, and so on down to notes from the last person. Two things are never left behind at any weight: <b>your job</b> and <b>the goal</b>. If they will not fit, they get shortened, never dropped &mdash; a worker who does not know what it is doing is worse than useless.</p>
+      <p>Packing a suitcase with a weight limit. You cannot take everything, so you have to decide what matters most, and you decide <i>before</i> you start packing, not by grabbing whatever is nearest.</p>
+      <p>The order here is fixed: your job first, then the goal, then what has been done, then the decisions and why, and so on down to notes from the last person. Two things are never left behind at any weight: <b>your job</b> and <b>the goal</b>. If they will not fit, they get shortened, never dropped, because a worker who does not know what it is doing is worse than useless.</p>
       <p>Now drag the slider down to about 300 and watch <b>failed attempts</b> get struck out. That is the interesting one. The next worker now has no idea that the sliding door already jammed, so it will happily try a sliding door. Preventing exactly that is why this whole project exists.</p>
     </div>
 
@@ -521,10 +481,10 @@
           <li><b>Two sections are never dropped.</b> <span class="mono">assigned_task</span> and <span class="mono">objective</span> are truncated character-wise as a last resort instead. Everything else that does not fit is reported in <span class="mono">omitted_sections</span> and <span class="mono">dropped_items</span>, so omission is observable rather than invisible.</li>
         </ul>
         <h4>Anchoring, and the bug it fixes</h4>
-        <p>Item selection within a section blends relevance against the assigned task with a recency bias, under per-category caps. Pure relevance-plus-recency has a failure mode that showed up in a real five-model run: by worker five, the founding decisions ("use FastAPI", "use UUID primary keys") had been outranked by a flood of recent detail, and the review worker was auditing an architecture whose foundations it could not see. Anchoring pins the earliest decisions and failed attempts regardless of score. A test now floods state with thirty later decisions and asserts the founding ones still reach the final package.</p>
+        <p>Item selection within a section blends relevance against the assigned task with a recency bias, under per-category caps. Pure relevance-plus-recency has a failure mode that showed up in a real five-model run: by worker five, the founding decisions ("use FastAPI", "use UUID primary keys") had been outranked by a flood of recent detail, and the review worker was auditing an architecture whose foundations it could not see. Anchoring pins the earliest decisions and failed attempts regardless of score. Flood the record with thirty later decisions and the founding ones still reach the final briefing.</p>
         <h4>Token estimation</h4>
         <p>Uses <span class="mono">tiktoken</span> when installed, otherwise the heuristic <span class="mono">max(words, chars // 4)</span>. <span class="mono">TokenEstimator</span> is a protocol, so a per-provider tokenizer drops in without touching the compiler. The slider above runs the heuristic path, which is why its numbers match a tiktoken-less run exactly.</p>
-        <p>Cost is <span class="mono">O(s&sup2;)</span> in section count from the re-render-and-measure loop, with <span class="mono">s = 13</span> fixed. Line-level trimming adds a factor of the lines in one section. At these sizes the whole compile is microseconds and is not on any hot path &mdash; a single model call is five to six orders of magnitude slower.</p>
+        <p>Cost is <span class="mono">O(s&sup2;)</span> in section count from the re-render-and-measure loop, with <span class="mono">s = 13</span> fixed. Line-level trimming adds a factor of the lines in one section. At these sizes the whole compile is microseconds and is not on any hot path: a single model call is five to six orders of magnitude slower.</p>
       </div>
     </div>
 
@@ -552,7 +512,7 @@
       <p>"I did my homework" is not the same as homework. A teacher who writes <i>done</i> in the register every time a student says so ends up with a register full of nonsense.</p>
       <p>So this engine believes almost nothing on the word of the worker. Four house rules:</p>
       <ul>
-        <li>If a worker says it fixed a problem and nobody checked, the problem <b>stays on the list</b> &mdash; with a note saying who claimed to have fixed it.</li>
+        <li>If a worker says it fixed a problem and nobody checked, the problem <b>stays on the list</b>, with a note saying who claimed to have fixed it.</li>
         <li>If a worker mentions a file it made, but did not list it properly, the file is written down and stamped <b>unverified</b>. It keeps that stamp as it travels forward.</li>
         <li>Things that failed can be added but <b>never removed</b>. No later worker can quietly delete the record of a dead end.</li>
         <li>The engine, not the worker, decides <b>who goes next and what they do</b>. A worker may suggest; it does not choose.</li>
@@ -566,17 +526,17 @@
         <span class="deepbox-sub">merge semantics, and what is still thin</span>
       </div>
       <div class="dbody">
-        <p><span class="mono">StateReconciler.reconcile(state, result, report, worker_id) &rarr; ReconcileOutcome</span> is the only write path into canonical state. It is a pure merge over the aggregate, returning accepted counts, suppressed duplicates, warnings, unverified artifacts and rejected resolutions &mdash; all of which are persisted next to the execution record, so the verdict on any turn is queryable long after the run.</p>
+        <p><span class="mono">StateReconciler.reconcile(state, result, report, worker_id) &rarr; ReconcileOutcome</span> is the only write path into canonical state. It is a pure merge over the aggregate, returning accepted counts, suppressed duplicates, warnings, unverified artifacts and rejected resolutions, all of which are persisted next to the execution record, so the verdict on any turn is queryable long after the run.</p>
         <ul>
-          <li><b>Issue resolution is never accepted from a claim.</b> A worker asserting resolution sets <span class="mono">resolution_claimed_by</span> on the issue; <span class="mono">resolved</span> stays false. In the shipped demo, worker five claims the refresh-token rotation issue is fixed, the engine records the claim, keeps the issue open, and forwards it as open. A test asserts it.</li>
-          <li><b>Artifacts named only in the handoff report</b> &mdash; present in prose, absent from the structured result &mdash; are stored with <span class="mono">verified=False</span> and raise a warning. They travel forward labelled <span class="mono">unverified</span>, so the successor treats them as unconfirmed rather than as ground truth.</li>
+          <li><b>Issue resolution is never accepted from a claim.</b> A worker asserting resolution sets <span class="mono">resolution_claimed_by</span> on the issue; <span class="mono">resolved</span> stays false. In the shipped demo, worker five claims the refresh-token rotation issue is fixed, the engine records the claim, keeps the issue open, and forwards it as open.</li>
+          <li><b>Artifacts named only in the handoff report</b> (present in prose, absent from the structured result) are stored with <span class="mono">verified=False</span> and raise a warning. They travel forward labelled <span class="mono">unverified</span>, so the successor treats them as unconfirmed rather than as ground truth.</li>
           <li><b>Failed attempts are append-only.</b> Nothing a later worker says removes one. This is the single most load-bearing rule in the trust model, because a removable negative result is a negative result that will be rediscovered at full cost.</li>
           <li><b>Provenance is stamped by the engine.</b> <span class="mono">recorded_by</span>, <span class="mono">recorded_at</span> and <span class="mono">verified</span> are written by the reconciler from the worker id and the server clock. They are not fields a model can populate.</li>
         </ul>
         <h4>Merge semantics</h4>
-        <p>Completed tasks and decisions dedupe on normalised text, so a restated decision does not inflate the record. Artifacts are versioned rather than overwritten: <span class="mono">architecture.md v3</span> keeps that worker-1 created it and workers 2 and 5 modified it. Discrepancies between result and report &mdash; a <span class="mono">last_action</span> that disagrees, a decision with no reason, missing handoff notes, a completion claim for an unplanned task &mdash; are recorded as warnings rather than swallowed or thrown.</p>
+        <p>Completed tasks and decisions dedupe on normalised text, so a restated decision does not inflate the record. Artifacts are versioned rather than overwritten: <span class="mono">architecture.md v3</span> keeps that worker-1 created it and workers 2 and 5 modified it. Discrepancies between result and report (a <span class="mono">last_action</span> that disagrees, a decision with no reason, missing handoff notes, a completion claim for an unplanned task) are recorded as warnings rather than swallowed or thrown.</p>
         <h4>Where this is deliberately thin</h4>
-        <p><span class="mono">verified</span> is currently only ever false. Real verification &mdash; file existence, content hashing, a test run, a tool result &mdash; is the next layer, and <span class="mono">verified</span> is precisely the seam it plugs into: nothing above the reconciler reads the flag as anything other than a boolean, so a validator can begin setting it true without a change anywhere else. Claiming more than that today would be dishonest, so the page and the README both say so.</p>
+        <p><span class="mono">verified</span> is currently only ever false. Real verification (file existence, content hashing, a tool result) is the next layer, and <span class="mono">verified</span> is precisely the seam it plugs into: nothing above the reconciler reads the flag as anything other than a boolean, so a validator can begin setting it true without a change anywhere else. Claiming more than that today would be dishonest, so the page and the README both say so.</p>
       </div>
     </div>
 
@@ -831,8 +791,8 @@
 
     <h3>One turn, as a sequence</h3>
     <div class="codeblock">
-      <div class="codecap">core/orchestrator.py &mdash; the loop, condensed</div>
-      <pre class="code"><span class="c"># state is loaded from SQLite, never held only in memory</span>
+      <div class="codecap">The loop, condensed</div>
+      <pre class="code"><span class="c"># state is loaded from the record, never held only in memory</span>
 <span class="k">for</span> seq, (worker, task) <span class="k">in</span> enumerate(assignments):
     package  = compiler.compile(state, task, worker.id, budget)   <span class="c"># deterministic</span>
     result   = worker.execute(package)                            <span class="c"># call 1 -> WorkerResult</span>
@@ -841,20 +801,20 @@
     store.write_turn(state, package, result, report, outcome)     <span class="c"># before the next turn</span>
     audit    = handoff.audit(worker, next_worker, package)        <span class="c"># persisted, not logged</span></pre>
     </div>
-    <p class="sidenote">Two model calls per turn, one write per turn, and no shared mutable object between iterations except <span class="mono">state</span> &mdash; which only the reconciler writes.</p>
+    <p class="sidenote">Two model calls per turn, one write per turn, and no shared mutable object between iterations except <span class="mono">state</span>, which only the reconciler writes.</p>
 
     <h3>Contracts</h3>
     <div class="tablewrap">
       <table>
-        <thead><tr><th>Type</th><th>Where</th><th>Trust</th><th>What it holds</th></tr></thead>
+        <thead><tr><th>Type</th><th>Trust</th><th>What it holds</th></tr></thead>
         <tbody>
-          <tr><td class="m">ExecutionState</td><td class="m">context/state.py</td><td>canonical</td><td>Objective, completed and pending tasks, decisions, versioned artifacts, issues, failed attempts, assumptions, progress, last and next action, worker and handoff history.</td></tr>
-          <tr><td class="m">WorkerResult</td><td class="m">core/contracts.py</td><td>claim</td><td>What the worker says it did this turn. Shape-validated by Pydantic, believed by nothing.</td></tr>
-          <tr><td class="m">HandoffReport</td><td class="m">core/contracts.py</td><td>claim</td><td>A second, separate output addressed to the successor: state at handoff, what is unfinished, what must not be assumed.</td></tr>
-          <tr><td class="m">HandoffPackage</td><td class="m">core/contracts.py</td><td>derived</td><td>The compiled context a worker receives, plus <span class="mono">included_sections</span>, <span class="mono">omitted_sections</span>, <span class="mono">dropped_items</span> and <span class="mono">estimated_tokens</span>.</td></tr>
-          <tr><td class="m">ReconcileOutcome</td><td class="m">core/reconciler.py</td><td>verdict</td><td>Accepted counts, suppressed duplicates, warnings, unverified artifacts, rejected resolutions. Persisted beside the execution.</td></tr>
-          <tr><td class="m">TransferAudit</td><td class="m">context/handoff.py</td><td>evidence</td><td>Per-handoff record of what crossed and what did not, with token cost against budget.</td></tr>
-          <tr><td class="m">WorkerConfig</td><td class="m">core/worker.py</td><td>config</td><td>id, model, credential source, api_base, temperature, max_tokens, max_retries, role, enabled, provider_config. Read from JSON at runtime.</td></tr>
+          <tr><td class="m">ExecutionState</td><td>canonical</td><td>Objective, completed and pending tasks, decisions, versioned artifacts, issues, failed attempts, assumptions, progress, last and next action, worker and handoff history.</td></tr>
+          <tr><td class="m">WorkerResult</td><td>claim</td><td>What the worker says it did this turn. Shape-validated by Pydantic, believed by nothing.</td></tr>
+          <tr><td class="m">HandoffReport</td><td>claim</td><td>A second, separate output addressed to the successor: state at handoff, what is unfinished, what must not be assumed.</td></tr>
+          <tr><td class="m">HandoffPackage</td><td>derived</td><td>The compiled context a worker receives, plus <span class="mono">included_sections</span>, <span class="mono">omitted_sections</span>, <span class="mono">dropped_items</span> and <span class="mono">estimated_tokens</span>.</td></tr>
+          <tr><td class="m">ReconcileOutcome</td><td>verdict</td><td>Accepted counts, suppressed duplicates, warnings, unverified artifacts, rejected resolutions. Persisted beside the execution.</td></tr>
+          <tr><td class="m">TransferAudit</td><td>evidence</td><td>Per-handoff record of what crossed and what did not, with token cost against budget.</td></tr>
+          <tr><td class="m">WorkerConfig</td><td>config</td><td>id, model, credential source, api_base, temperature, max_tokens, max_retries, role, enabled, provider_config. Read from JSON at runtime.</td></tr>
         </tbody>
       </table>
     </div>
@@ -864,31 +824,31 @@
       <div>
         <h4>State is a typed aggregate, not an event log</h4>
         <p>An event-sourced design would give free history and replay. It was rejected because the compiler's job is category-aware budgeting, and folding an event stream into categories on every compile is work the aggregate does once. History is kept anyway as per-turn snapshots plus an append-only event table, so replay is available without paying for it on the read path.</p>
-        <span class="mono">context/state.py, storage/sqlite_store.py</span>
+
       </div>
       <div>
         <h4>Sequential turns, not a DAG</h4>
-        <p>Only one worker runs at a time. Parallel branches would need conflict resolution in the reconciler &mdash; two workers versioning the same artifact from the same base &mdash; and that is a different, larger problem. <span class="mono">SwitchPolicy</span> is the interface a scheduler would implement; the loop itself would not change shape.</p>
-        <span class="mono">core/orchestrator.py</span>
+        <p>Only one worker runs at a time. Parallel branches would need conflict resolution in the reconciler (two workers versioning the same artifact from the same base), and that is a different, larger problem. <span class="mono">SwitchPolicy</span> is the interface a scheduler would implement; the loop itself would not change shape.</p>
+
       </div>
       <div>
         <h4>Budget measured on rendered text</h4>
-        <p>Summing per-section estimates drifts from the real prompt by headers and joining whitespace, and that drift is exactly what produces a context overflow that unit tests never see. Re-rendering costs <span class="mono">O(s&sup2;)</span> with <span class="mono">s = 13</span> fixed &mdash; microseconds against a model call.</p>
-        <span class="mono">context/compiler.py</span>
+        <p>Summing per-section estimates drifts from the real prompt by headers and joining whitespace, and that drift is exactly what produces a context overflow that unit tests never see. Re-rendering costs <span class="mono">O(s&sup2;)</span> with <span class="mono">s = 13</span> fixed: microseconds against a model call.</p>
+
       </div>
       <div>
         <h4>Write after every turn, not at the end</h4>
-        <p>Persisting per-turn is what makes resume real rather than aspirational: kill the process between worker three and worker four and a new process compiles worker four's package from disk. A test does exactly that, including the kill.</p>
-        <span class="mono">storage/sqlite_store.py</span>
+        <p>Persisting per-turn is what makes resume real rather than aspirational: kill the process between worker three and worker four and a new process compiles worker four's package from disk.</p>
+
       </div>
       <div>
         <h4>Rate limits are scheduling, not failure</h4>
         <p>The gateway parses the delay the provider itself suggests (<span class="mono">"try again in 8.4s"</span>) and honours it, falling back to exponential backoff. The same worker simply waits; state is untouched, so nothing needs unwinding.</p>
-        <span class="mono">gateway/llm_gateway.py</span>
+
       </div>
       <div>
         <h4>Provider blindness is tested, not documented</h4>
-        <p>A test scans every module above the gateway for provider names and fails if one appears; another asserts exactly one worker class exists. Architecture claims that are only in a README rot within two refactors.</p>
+
         <span class="mono">tests/</span>
       </div>
     </div>
@@ -910,17 +870,17 @@
 
     <h3>Seams built for extension</h3>
     <dl class="fields">
-      <div class="field"><dt>SwitchPolicy<small>core/orchestrator.py</small></dt><dd>Decides which worker takes which step. <span class="mono">SequentialSwitchPolicy</span> is one implementation; cost-aware, capability-aware, context-limit and availability routing are all alternate implementations of the same interface. The loop does not change.</dd></div>
-      <div class="field"><dt>TokenEstimator<small>context/compiler.py</small></dt><dd>A protocol. <span class="mono">tiktoken</span> when present, a character and word heuristic otherwise, a per-provider tokenizer if you write one.</dd></div>
-      <div class="field"><dt>Gateway<small>gateway/llm_gateway.py</small></dt><dd>Live (LiteLLM) and deterministic mock implementations of one interface. A recording or replaying gateway for cheap regression testing is the same shape.</dd></div>
-      <div class="field"><dt>Artifact verification<small>core/reconciler.py</small></dt><dd>The <span class="mono">verified</span> flag is currently only ever false. File existence, content hashing or a test result would set it true, and nothing above the reconciler needs to change &mdash; it already reads the flag as a boolean and forwards the label.</dd></div>
-      <div class="field"><dt>Store<small>storage/sqlite_store.py</small></dt><dd>Six tables behind a narrow interface. Postgres is a swap, not a rewrite; the engine only needs write-a-turn and read-a-task.</dd></div>
+      <div class="field"><dt>SwitchPolicy</dt><dd>Decides which worker takes which step. <span class="mono">SequentialSwitchPolicy</span> is one implementation; cost-aware, capability-aware, context-limit and availability routing are all alternate implementations of the same interface. The loop does not change.</dd></div>
+      <div class="field"><dt>TokenEstimator</dt><dd>A protocol. <span class="mono">tiktoken</span> when present, a character and word heuristic otherwise, a per-provider tokenizer if you write one.</dd></div>
+      <div class="field"><dt>Gateway</dt><dd>Live (LiteLLM) and deterministic mock implementations of one interface. A gateway that records and replays answers is the same shape.</dd></div>
+      <div class="field"><dt>Artifact verification</dt><dd>The <span class="mono">verified</span> flag is currently only ever false. File existence, content hashing or a verification step would set it true, and nothing above the reconciler needs to change; it already reads the flag as a boolean and forwards the label.</dd></div>
+      <div class="field"><dt>Store</dt><dd>A narrow interface over a handful of tables. Swapping the database underneath is a swap, not a rewrite: the engine only needs write-a-turn and read-a-task.</dd></div>
     </dl>
 
     <h3>What this is not</h3>
     <div class="callout">
       <span class="label">Honest limits</span>
-      <p>Not a parallel agent framework &mdash; turns are strictly sequential. Not a tool-use or code-execution runtime &mdash; workers produce structured descriptions of work, and artifact <em>content</em> is never validated, which is why every artifact carries <span class="mono">unverified</span>. Not a scheduler, a queue, or a service. And not a claim that this beats a single long-context model on a task that comfortably fits in one window: it earns its place when the work outlives a context window, crosses model families, or has to be auditable afterwards.</p>
+      <p>Not a parallel agent framework: turns are strictly sequential. Not a tool-use or code-execution runtime: workers produce structured descriptions of work, and artifact <em>content</em> is never validated, which is why every artifact carries <span class="mono">unverified</span>. Not a scheduler, a queue, or a service. And not a claim that this beats a single long-context model on a task that comfortably fits in one window: it earns its place when the work outlives a context window, crosses model families, or has to be auditable afterwards.</p>
     </div>
 
     <div class="nextup">
@@ -952,12 +912,12 @@
             <td>The maximum token span a model attends over in one call. Exceeding it truncates or errors depending on the provider.</td>
           </tr>
           <tr>
-            <td>Worker<small>core/worker.py</small></td>
+            <td>Worker</td>
             <td>One AI doing one turn of the job. It walks in knowing nothing, reads its briefing, does its bit, and forgets everything.</td>
             <td><span class="mono">WorkerConfig + Gateway</span>. One class for every model; no memory between turns and no reference to state that outlives the turn.</td>
           </tr>
           <tr>
-            <td>Canonical state<small>context/state.py</small></td>
+            <td>Canonical state</td>
             <td>The notebook. The one true record of the job, owned by the system and not by any of the AIs.</td>
             <td><span class="mono">ExecutionState</span>, a typed Pydantic aggregate. The single source of truth; only the reconciler may write to it.</td>
           </tr>
@@ -977,7 +937,7 @@
             <td>A second, separate model call with its own schema, so warnings are not biased by the same breath that reports success.</td>
           </tr>
           <tr>
-            <td>Reconciler<small>core/reconciler.py</small></td>
+            <td>Reconciler</td>
             <td>The teacher who checks the homework before writing anything in the notebook. Believes almost nothing on the worker's word alone.</td>
             <td><span class="mono">StateReconciler</span>, the sole write path into canonical state. Dedupes, stamps provenance, and enforces four invariants.</td>
           </tr>
@@ -994,7 +954,7 @@
           <tr>
             <td>Unverified<small>the stamp</small></td>
             <td>"Someone said this exists, but nobody checked." The stamp travels forward so the next worker knows not to rely on it.</td>
-            <td><span class="mono">verified=False</span> on an artifact. Currently always false &mdash; the seam where real validation plugs in.</td>
+            <td><span class="mono">verified=False</span> on an artifact. Currently always false: the seam where real validation plugs in.</td>
           </tr>
           <tr>
             <td>Token budget<small>the weight limit</small></td>
@@ -1012,7 +972,7 @@
             <td>An append-only category. No later worker can remove one, because a removable negative result will be rediscovered at full cost.</td>
           </tr>
           <tr>
-            <td>Gateway<small>gateway/llm_gateway.py</small></td>
+            <td>Gateway</td>
             <td>The only part allowed to phone the AI companies. Everything above it has no idea which company it is talking to.</td>
             <td>The single provider-aware module, delegating to LiteLLM. Ships live and deterministic mock implementations of one interface.</td>
           </tr>
@@ -1022,14 +982,14 @@
             <td>Deterministic offline implementation. Compilation, reconciliation, persistence and audit all execute for real; only the model call is simulated.</td>
           </tr>
           <tr>
-            <td>Orchestrator<small>core/orchestrator.py</small></td>
+            <td>Orchestrator</td>
             <td>The organiser. Decides who goes next, hands out briefings, and keeps the notebook safe.</td>
-            <td>Owns the turn loop, the worker registry and the <span class="mono">SwitchPolicy</span>. Owns the plan cursor &mdash; a worker's suggested next action is advisory.</td>
+            <td>Owns the turn loop, the worker registry and the <span class="mono">SwitchPolicy</span>. Owns the plan cursor; a worker's suggested next action is advisory.</td>
           </tr>
           <tr>
             <td>Resume<small>crash recovery</small></td>
             <td>If the power goes out halfway, you can pick up where it stopped, because the notebook was saved after every turn.</td>
-            <td>Rebuilding the next package from persisted state in a fresh process. Verified by a test that kills a run after three workers.</td>
+            <td>Rebuilding the next package from persisted state in a fresh process.</td>
           </tr>
         </tbody>
       </table>
@@ -1051,76 +1011,76 @@
 
     <div class="faq">
       <div class="faq-item">
-        <div class="faq-q">Do I need an API key to try this?</div>
-        <div class="ans"><p>No. Leave step 1 of the playground alone and the run uses a deterministic offline gateway. Compilation, reconciliation, the SQLite writes and the transfer audit all execute for real &mdash; only the model calls are simulated. It costs nothing and finishes in milliseconds, which is why playback is paced by default so you can watch it.</p></div>
+        <button type="button" class="faq-q" aria-expanded="false"><span class="faq-t">Do I need an API key to try this?</span><span class="chev"></span></button>
+        <div class="ans" hidden><p>No. Leave step 1 of the playground alone and the run uses a deterministic offline gateway. Compilation, reconciliation, the writes to disk and the transfer audit all execute for real. Only the model calls are simulated. It costs nothing and finishes in milliseconds, which is why playback is paced by default so you can watch it.</p></div>
       </div>
 
       <div class="faq-item">
-        <div class="faq-q">Is this just RAG, or a vector database?</div>
-        <div class="ans">
-          <p>No, and the difference is the point. Retrieval fetches <em>documents similar to a query</em>. This compiles <em>execution state relevant to an assignment</em> &mdash; a typed record with explicit categories, of which "decisions and their reasons", "issues still open" and "approaches that already failed" are the ones that matter.</p>
-          <p>An embedding index has no way to express "this decision is foundational, keep it regardless of similarity score", or "this dead end must never be deleted". Those are category rules, not similarity rules. Nothing stops you putting retrieval behind an artifact &mdash; but it solves a different problem from the one here.</p>
+        <button type="button" class="faq-q" aria-expanded="false"><span class="faq-t">Is this just RAG, or a vector database?</span><span class="chev"></span></button>
+        <div class="ans" hidden>
+          <p>No, and the difference is the point. Retrieval fetches <em>documents similar to a query</em>. This compiles <em>execution state relevant to an assignment</em>: a typed record with explicit categories, of which "decisions and their reasons", "issues still open" and "approaches that already failed" are the ones that matter.</p>
+          <p>An embedding index has no way to express "this decision is foundational, keep it regardless of similarity score", or "this dead end must never be deleted". Those are category rules, not similarity rules. Nothing stops you putting retrieval behind an artifact, but it solves a different problem from the one here.</p>
         </div>
       </div>
 
       <div class="faq-item">
-        <div class="faq-q">Why not just use a model with a huge context window?</div>
-        <div class="ans">
-          <p>If your whole task fits comfortably in one window and one session, do that &mdash; it is simpler and this project would not earn its complexity.</p>
+        <button type="button" class="faq-q" aria-expanded="false"><span class="faq-t">Why not just use a model with a huge context window?</span><span class="chev"></span></button>
+        <div class="ans" hidden>
+          <p>If your whole task fits comfortably in one window and one session, do that: it is simpler and this project would not earn its complexity.</p>
           <p>It earns it when at least one of these is true: the work outlives any single window; you want different model families on different steps (cheap for drafting, strong for review) and refuse to pay the expensive one to re-read everything said before it arrived; the process may crash and must resume; or somebody has to answer afterwards what was decided, by which model, on what basis, and what was never actually checked.</p>
           <p>There is also a quality argument independent of size. A large window still degrades as the relevant fraction of it shrinks. A compiled 631-token package is not merely cheaper than a 27,000-token transcript; it is <em>more</em> useful to the model, because everything in it was selected for the task at hand.</p>
         </div>
       </div>
 
       <div class="faq-item">
-        <div class="faq-q">What stops a worker from lying about what it did?</div>
-        <div class="ans">
-          <p>Nothing stops it lying &mdash; the design assumes it will. What is enforced is what a lie can accomplish. An issue is never closed on an unverified claim: the assertion is recorded as <span class="mono">resolution_claimed_by</span> and the issue stays open. An artifact mentioned only in prose is stored stamped <span class="mono">unverified</span> and travels forward with that label. Failed attempts are append-only, so no worker can delete an inconvenient dead end. And provenance is written by the engine from the worker id and the server clock, never self-reported.</p>
+        <button type="button" class="faq-q" aria-expanded="false"><span class="faq-t">What stops a worker from lying about what it did?</span><span class="chev"></span></button>
+        <div class="ans" hidden>
+          <p>Nothing stops it lying; the design assumes it will. What is enforced is what a lie can accomplish. An issue is never closed on an unverified claim: the assertion is recorded as <span class="mono">resolution_claimed_by</span> and the issue stays open. An artifact mentioned only in prose is stored stamped <span class="mono">unverified</span> and travels forward with that label. Failed attempts are append-only, so no worker can delete an inconvenient dead end. And provenance is written by the engine from the worker id and the server clock, never self-reported.</p>
           <p>You can watch this happen: in the demo run, worker five claims the refresh-token rotation issue is resolved, and the engine forwards it as still open.</p>
         </div>
       </div>
 
       <div class="faq-item">
-        <div class="faq-q">How is this different from LangGraph, CrewAI, or an agent framework?</div>
-        <div class="ans">
-          <p>Those are mostly about <em>control flow</em> &mdash; graphs, roles, tool routing, who calls whom. This is about <em>what survives a handoff</em>, and it is deliberately narrow: one sequential loop, one worker class, no graph, no tools.</p>
-          <p>The substantive differences are that state here is a typed aggregate the engine owns rather than a blob passed between nodes; model output is treated as an untrusted claim with a reconciliation boundary in front of canonical state; and every handoff is bounded by an explicit token budget with omissions reported rather than silent. If you want branching or parallelism, <span class="mono">SwitchPolicy</span> is the interface to implement &mdash; but conflict resolution for concurrent writes is a real problem this does not solve today.</p>
+        <button type="button" class="faq-q" aria-expanded="false"><span class="faq-t">How is this different from LangGraph, CrewAI, or an agent framework?</span><span class="chev"></span></button>
+        <div class="ans" hidden>
+          <p>Those are mostly about <em>control flow</em>: graphs, roles, tool routing, who calls whom. This is about <em>what survives a handoff</em>, and it is deliberately narrow: one sequential loop, one worker class, no graph, no tools.</p>
+          <p>The substantive differences are that state here is a typed aggregate the engine owns rather than a blob passed between nodes; model output is treated as an untrusted claim with a reconciliation boundary in front of canonical state; and every handoff is bounded by an explicit token budget with omissions reported rather than silent. If you want branching or parallelism, <span class="mono">SwitchPolicy</span> is the interface to implement, but conflict resolution for concurrent writes is a real problem this does not solve today.</p>
         </div>
       </div>
 
       <div class="faq-item">
-        <div class="faq-q">What actually happens if a worker fails mid-run?</div>
-        <div class="ans">
-          <p>A rate limit is retried inside the gateway, honouring the delay the provider itself suggests. A hard failure is recorded on that execution row and the run continues from canonical state with the next worker &mdash; the failed turn is lost, nothing else is. If the whole process dies, the record up to the last completed turn is already on disk, so a fresh process recompiles the next briefing from it and finishes the job. A test kills a run after three workers and asserts it completes.</p>
+        <button type="button" class="faq-q" aria-expanded="false"><span class="faq-t">What actually happens if a worker fails mid-run?</span><span class="chev"></span></button>
+        <div class="ans" hidden>
+          <p>A rate limit is retried inside the gateway, honouring the delay the provider itself suggests. A hard failure is recorded on that execution row and the run continues from canonical state with the next worker: the failed turn is lost, nothing else is. If the whole process dies, the record up to the last completed turn is already on disk, so a fresh process recompiles the next briefing from it and finishes the job.</p>
         </div>
       </div>
 
       <div class="faq-item">
-        <div class="faq-q">How many workers can it handle?</div>
-        <div class="ans">
-          <p>The roster is read from <span class="mono">workers.json</span> at runtime and adding one requires no code change. Tests run the identical path with 1, 3, 5, 20 and 100 workers. More plan steps than workers cycles the roster; more workers than steps gives the surplus continuation turns, so every configured worker gets one.</p>
+        <button type="button" class="faq-q" aria-expanded="false"><span class="faq-t">How many workers can it handle?</span><span class="chev"></span></button>
+        <div class="ans" hidden>
+          <p>The roster is configuration, read at runtime, and adding one requires no code change. The identical path runs with 1, 3, 5, 20 and 100 workers. More plan steps than workers cycles the roster; more workers than steps gives the surplus continuation turns, so every configured worker gets one.</p>
         </div>
       </div>
 
       <div class="faq-item">
-        <div class="faq-q">Where do the API keys go?</div>
-        <div class="ans">
-          <p>A key resolves inside the gateway from the environment variable named in <span class="mono">workers.json</span>, or from an in-memory <span class="mono">WorkerConfig</span> for one run if you pasted it into the playground. It is never written to the database, never logged, and never returned to the page. The six database tables have no column that could hold one.</p>
+        <button type="button" class="faq-q" aria-expanded="false"><span class="faq-t">Where do the API keys go?</span><span class="chev"></span></button>
+        <div class="ans" hidden>
+          <p>A key resolves inside the gateway, either from the environment or from an in-memory config held for one run if you pasted it into the playground. It is never written to the database, never logged, and never returned to the page. No table has a column that could hold one.</p>
           <p>One caveat that trips people up: the <span class="mono">model</span> prefix picks the provider, not the key. A valid key with the wrong prefix fails with <span class="mono">invalid x-api-key</span>, because it is being offered to a provider that never issued it.</p>
         </div>
       </div>
 
       <div class="faq-item">
-        <div class="faq-q">What is deliberately unfinished?</div>
-        <div class="ans">
-          <p>Artifact <em>content</em> is never validated &mdash; workers name artifacts and the engine grades every one <span class="mono">unverified</span>. Turns are strictly sequential, with no parallel branches and therefore no write-conflict resolution. There is no tool use or code execution: workers produce structured descriptions of work, not the work itself. Each of those has a named seam (<span class="mono">verified</span>, <span class="mono">SwitchPolicy</span>, the gateway interface), and none of them is claimed as done.</p>
+        <button type="button" class="faq-q" aria-expanded="false"><span class="faq-t">What is deliberately unfinished?</span><span class="chev"></span></button>
+        <div class="ans" hidden>
+          <p>Artifact <em>content</em> is never validated: workers name artifacts and the engine grades every one <span class="mono">unverified</span>. Turns are strictly sequential, with no parallel branches and therefore no write-conflict resolution. There is no tool use or code execution: workers produce structured descriptions of work, not the work itself. Each of those has a named seam (<span class="mono">verified</span>, <span class="mono">SwitchPolicy</span>, the gateway interface), and none of them is claimed as done.</p>
         </div>
       </div>
 
       <div class="faq-item">
-        <div class="faq-q">Can I use just one piece of it?</div>
-        <div class="ans">
-          <p>Yes. The compiler needs no model call and no orchestrator: <span class="mono">engine.compile_context(state, task, worker_id)</span> turns any <span class="mono">ExecutionState</span> into a bounded, prioritized prompt context and tells you what did not fit. The reconciler, store, registry and gateways are exported and swappable individually &mdash; the <span class="mono">Engine</span> facade is delegation, not a wall.</p>
+        <button type="button" class="faq-q" aria-expanded="false"><span class="faq-t">Can I use just one piece of it?</span><span class="chev"></span></button>
+        <div class="ans" hidden>
+          <p>Yes. The compiler needs no model call and no orchestrator: <span class="mono">engine.compile_context(state, task, worker_id)</span> turns any <span class="mono">ExecutionState</span> into a bounded, prioritized prompt context and tells you what did not fit. The reconciler, store, registry and gateways are exported and swappable individually: the <span class="mono">Engine</span> facade is delegation, not a wall.</p>
         </div>
       </div>
     </div>
@@ -1141,9 +1101,9 @@
     <dl class="fields">
       <div class="field"><dt>The machinery</dt><dd>The record, the interchangeable worker, the reconciler, the briefing compiler, the model gateway and the persistent store. All built and working.</dd></div>
       <div class="field"><dt>Live execution</dt><dd>Five workers, four model families, five separate credentials, roughly ninety seconds per run.</dd></div>
-      <div class="field"><dt>Provider independence</dt><dd>A test asserts no module above the gateway names any provider, and that exactly one worker class exists.</dd></div>
+      <div class="field"><dt>Provider independence</dt><dd>No part of the engine above the gateway names any provider, and there is exactly one worker class.</dd></div>
       <div class="field"><dt>Crash recovery</dt><dd>Verified by killing a run after three workers and resuming to completion in a new process.</dd></div>
-      <div class="field"><dt>Scale</dt><dd>Runs identically with one, three, five, twenty, and one hundred workers. Covered by tests.</dd></div>
+      <div class="field"><dt>Scale</dt><dd>Runs identically with one, three, five, twenty, and one hundred workers.</dd></div>
       <div class="field"><dt>Artifact validation</dt><dd>Deliberately minimal. Workers name artifacts and the engine grades them unverified. Real content validation is the next layer, and the seam for it already exists.</dd></div>
     </dl>
   </section>
@@ -1152,6 +1112,17 @@
     <p>Models can change. Workers can change. The record of the work should not.</p>
   </footer>
 
+</div>
+
+<!-- How many people have opened this page. Counted on the server, and hidden
+     until there is a real total to show. -->
+<div class="visits" id="visits" hidden>
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12Z"/>
+    <circle cx="12" cy="12" r="3.2"/>
+  </svg>
+  <span class="visits-n" id="visitsN">0</span>
+  <span class="visits-l">opened</span>
 </div>
 
 <script type="module" src="/static/js/main.js"></script>

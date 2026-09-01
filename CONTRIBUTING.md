@@ -39,7 +39,7 @@ python -m pytest -q                       # the full suite
 python -m pyflakes src tests main.py      # no unused imports or names
 ```
 
-The suite runs entirely offline against the mock gateway — no key, no network,
+The suite runs entirely offline against the mock gateway: no key, no network,
 no cost. If a change cannot be tested that way, it probably belongs behind the
 gateway seam.
 
@@ -56,7 +56,7 @@ Match the surrounding code rather than a linter's idea of it.
   module's job; keep it accurate.
 - Type hints on public functions; `from __future__ import annotations` at the
   top.
-- Pydantic models for anything crossing a boundary — a worker's raw claims and
+- Pydantic models for anything crossing a boundary. A worker's raw claims and
   the canonical records they become are deliberately different types.
 - No new top-level import names: everything lives under `context_orchestration`,
   and a test asserts it.

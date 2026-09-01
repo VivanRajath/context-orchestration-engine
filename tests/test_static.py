@@ -223,3 +223,77 @@ def test_the_page_declares_one_content_width():
     base = (CSS / "base.css").read_text(encoding="utf-8")
     assert ".wrap { width: min(1460px, 95vw);" in base
     assert ".pg-section .wrap" not in base, "the playground has its own width again"
+
+
+# -- what the page says ----------------------------------------------------
+
+
+def test_the_page_does_not_name_the_source_tree(markup):
+    """A reader deciding whether the idea holds up is not reading the repo.
+
+    Which file a class lives in, how many tests cover it and which database
+    happens to be underneath are all true and all somebody else's business on
+    a page whose job is to explain a way of working.
+    """
+    for pattern, what in (
+        (r"[a-z_]+/[a-z_]+\.py", "a module path"),
+        (r"(?i)sqlite", "the storage engine by name"),
+        (r"workers\.json", "a config file name"),
+        (r"(?i)\ba test asserts\b", "a test as evidence"),
+        (r"(?i)covered by tests", "a test as evidence"),
+    ):
+        found = re.findall(pattern, markup)
+        assert not found, f"the page names {what}: {sorted(set(found))[:5]}"
+
+
+def test_no_em_dashes_anywhere(markup):
+    """One punctuation mark standing in for five is a shrug at the reader."""
+    assert "&mdash;" not in markup
+    assert "\u2014" not in markup
+
+
+def test_no_em_dashes_in_the_prose_files():
+    root = Path(__file__).resolve().parents[1]
+    for name in ("README.md", "CONTRIBUTING.md", "CHANGELOG.md", "docs/DEPLOYMENT.md"):
+        text = (root / name).read_text(encoding="utf-8")
+        assert "\u2014" not in text, name
+
+
+# -- the questions ---------------------------------------------------------
+
+
+def test_the_questions_are_an_accordion(markup):
+    """Fourteen answers laid out flat is a wall; the questions are the index."""
+    questions = re.findall(r'<button type="button" class="faq-q"([^>]*)>', markup)
+    assert len(questions) >= 10, "the questions are not controls"
+    for attrs in questions:
+        assert 'aria-expanded="false"' in attrs, "an answer starts open"
+    assert markup.count('<div class="ans" hidden>') == len(questions)
+    assert '<div class="faq-q">' not in markup, "a question was left as plain markup"
+
+
+def test_the_answers_are_hidden_by_an_attribute_not_a_class(markup):
+    """`hidden` is what find-in-page and a screen reader already understand.
+
+    It also has to actually win: a class that sets `display` beats the user
+    agent's own `[hidden]` rule, which is how the worker cards once reported
+    themselves collapsed while still rendering 8,560 pixels tall.
+    """
+    css = (CSS / "base.css").read_text(encoding="utf-8")
+    assert ".faq .ans[hidden] { display: none; }" in css
+
+
+# -- the visit count -------------------------------------------------------
+
+
+def test_the_visit_badge_is_hidden_until_there_is_a_number(markup):
+    assert re.search(r'<div class="visits" id="visits" hidden>', markup)
+    assert 'id="visitsN"' in markup
+
+
+def test_the_page_never_invents_the_visit_count():
+    """The number comes from the server, and only when it is the real total."""
+    js = (JS / "visits.js").read_text(encoding="utf-8")
+    assert "/api/visits" in js
+    assert "data.durable" in js, "the page would show an undercount as the total"
+    assert not re.search(r"Math\.random|\+\+|\* *1000", js), "a made-up number"

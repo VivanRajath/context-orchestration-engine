@@ -117,3 +117,73 @@ def test_the_build_ships_the_page():
     include = config["functions"]["api/index.py"]["includeFiles"]
     assert include.startswith("src/"), include
     assert include.rstrip("/*").rstrip("/") == "src"
+
+
+# -- the visit count -------------------------------------------------------
+
+
+def test_a_visit_is_counted_once_and_reading_does_not_count(client):
+    assert client.get("/api/visits").json()["views"] == 0
+    assert client.post("/api/visits").json()["views"] == 1
+    assert client.post("/api/visits").json()["views"] == 2
+    assert client.get("/api/visits").json()["views"] == 2
+    assert client.get("/api/visits").json()["views"] == 2
+
+
+def test_the_count_survives_the_process_that_wrote_it(tmp_path):
+    """It is a total, so it has to outlive the app that incremented it."""
+    db = str(tmp_path / "v.db")
+    TestClient(server.create_app(db=db)).post("/api/visits")
+    TestClient(server.create_app(db=db)).post("/api/visits")
+    fresh = TestClient(server.create_app(db=db))
+    assert fresh.get("/api/visits").json()["views"] == 2
+
+
+def test_a_count_that_cannot_be_a_total_says_so(client, monkeypatch):
+    """A serverless instance gets a fresh /tmp and then takes it away.
+
+    The number it reports is real and is not the total, so the page is told
+    not to show it rather than left to present an undercount as a fact.
+    """
+    monkeypatch.setenv("COE_SERVERLESS", "1")
+    assert client.post("/api/visits").json()["durable"] is False
+
+
+def test_a_redis_over_http_makes_it_a_total(client, monkeypatch):
+    monkeypatch.setenv("COE_SERVERLESS", "1")
+    monkeypatch.setenv("COE_COUNTER_URL", "https://example.upstash.io")
+    monkeypatch.setenv("COE_COUNTER_TOKEN", "t")
+    assert client.get("/api/visits").json()["durable"] is True
+
+
+@pytest.mark.parametrize(
+    "url_var,token_var",
+    [
+        ("COE_COUNTER_URL", "COE_COUNTER_TOKEN"),
+        ("UPSTASH_REDIS_REST_URL", "UPSTASH_REDIS_REST_TOKEN"),
+        ("KV_REST_API_URL", "KV_REST_API_TOKEN"),
+    ],
+)
+def test_the_store_is_found_under_whichever_name_the_host_uses(
+    url_var, token_var, monkeypatch
+):
+    """Upstash and Vercel's KV integration are the same service, named twice."""
+    from context_orchestration.web import counter
+
+    for name in counter.URL_VARS + counter.TOKEN_VARS:
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv(url_var, "https://example.upstash.io/")
+    monkeypatch.setenv(token_var, "token")
+    assert counter.redis_config() == ("https://example.upstash.io", "token")
+
+
+def test_an_unreachable_store_does_not_take_the_page_down(tmp_path, monkeypatch):
+    """A counter is not worth failing a request over."""
+    monkeypatch.setenv("COE_COUNTER_URL", "http://127.0.0.1:9")
+    monkeypatch.setenv("COE_COUNTER_TOKEN", "t")
+    client = TestClient(
+        server.create_app(db=str(tmp_path / "v.db")), raise_server_exceptions=False
+    )
+    body = client.post("/api/visits")
+    assert body.status_code == 200
+    assert body.json()["views"] == 1

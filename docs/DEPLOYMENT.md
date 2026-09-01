@@ -1,7 +1,7 @@
 # Deploying the playground
 
 The engine is a library and a CLI. The only thing worth hosting is the web
-playground — a page that drives the real orchestrator and streams every turn,
+playground: a page that drives the real orchestrator and streams every turn,
 so a reader can watch a handoff happen instead of reading about one.
 
 This document covers Vercel, which the repository is configured for out of the
@@ -21,8 +21,8 @@ actually has:
 | **No key** | The stand-in answers instead of a model | Nothing |
 
 The stand-in is not a mock of the architecture. Every part of the engine is
-real — the same context compilation, the same reconciliation, the same SQLite
-writes, the same handoff audit — and only the model call is simulated.
+real (the same context compilation, the same reconciliation, the same SQLite
+writes, the same handoff audit) and only the model call is simulated.
 
 ### Real model calls, on a serverless host
 
@@ -99,7 +99,7 @@ POST, so the page reads the SSE frames off the response body itself.
   depending on the model, so keep the plan short on a Hobby plan.
 - **Free-tier rate limits are real.** Five workers against one vendor's free
   tier can exhaust a per-minute token allowance mid-run. The engine records the
-  failure, keeps state intact, and carries on from the record — which is
+  failure, keeps state intact, and carries on from the record, which is
   honest, and happens to demonstrate the point.
 
 ---
@@ -115,6 +115,12 @@ POST, so the page reads the SSE frames off the response body itself.
 | `COE_NO_LIVE` | unset | Refuse real calls entirely. |
 | `COE_GATEWAY` | unset | Set to `litellm` to route real calls through LiteLLM instead of the built-in HTTP gateway. |
 | `COE_DB` | `/tmp/playground.db` | SQLite path for the deployed app. |
+| `COE_COUNTER_URL` | unset | Redis over HTTP for the visit count. Upstash's REST endpoint. |
+| `COE_COUNTER_TOKEN` | unset | Bearer token for the above. |
+
+`UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` and Vercel's
+`KV_REST_API_URL` / `KV_REST_API_TOKEN` are read as well, so adding the KV
+integration in the Vercel dashboard needs no configuration here at all.
 | `WORKER_1_API_KEY` … | unset | Per-worker credentials, named by `api_key_env` in the worker roster, and the default key pool. |
 
 A key never reaches the browser. `/api/config` reports how many the pool holds
@@ -127,12 +133,46 @@ committed file. `.env` is gitignored and `.vercelignore`d.
 
 ---
 
+## Is it actually running?
+
+`GET /api/health` answers from inside the instance: Python version, the
+versions of the installed packages, whether the static tree arrived and which
+files are in it, the deployment flags, and which store the visit counter
+found. No key: the pool reports a count and a vendor, as it does everywhere.
+
+It exists because a build is assembled by someone else's packer from someone
+else's index of releases, so the two things that differ from a laptop are
+which files arrived and which versions were installed, and neither is visible
+from a stack trace.
+
+If the app cannot be built at all, `api/index.py` catches it and serves the
+traceback plus a listing of what is in the build, rather than letting the host
+answer every URL with its own crash page. A dead deployment should say why.
+
+The deploy requirements are pinned rather than floored, for the same reason:
+`>=` resolves against whatever the index holds that morning, so the bundle is
+assembled differently on every deploy and a release published overnight can
+break a site nobody touched. `pyproject.toml` keeps the open ranges for people
+installing the library.
+
+## The visit count
+
+The page shows how many people have opened it, counted on the server, once per
+browser session rather than once per page load.
+
+It is not kept in the run database. That database is under `/tmp` on a
+serverless host, which is per-instance and vanishes with the instance: fine
+for a run that begins and ends inside one request, useless for a total. Set
+`COE_COUNTER_URL` and `COE_COUNTER_TOKEN` (or add Vercel's KV integration) and
+the count is durable. Without one, the endpoint reports `durable: false` and
+the page hides the badge instead of presenting an undercount as the total.
+
 ## The worker roster on a deployment
 
 `workers.json` is gitignored, because it is yours. With no such file the engine
 falls back to the roster packaged at
-`src/context_orchestration/config/workers.example.json` — five workers across
-four model families — which is what the deployed page shows.
+`src/context_orchestration/config/workers.example.json`: five workers across
+four model families, which is what the deployed page shows.
 
 To deploy a different roster, commit your own file and point the app at it:
 
@@ -148,7 +188,7 @@ app = create_app(
 
 ## Anywhere else
 
-The app is a plain ASGI application, so any host that runs one will do — and a
+The app is a plain ASGI application, so any host that runs one will do, and a
 host with a persistent process is a *better* fit than a serverless one, because
 the local two-request path and durable SQLite both work unmodified.
 
