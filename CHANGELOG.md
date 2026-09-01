@@ -108,6 +108,14 @@ All notable changes to this project are recorded here. The format follows
 
 ### Fixed
 
+- **Every URL answered 404, including the page.** `vercel.json` rewrote
+  `/(.*)` to `/api/index` so that every path reached the function. The host
+  used to pass the app the path the browser asked for and now passes the
+  rewritten one, so the app saw `/api/index` for every request and matched no
+  route. The rewrite is gone: a destination that is one fixed string discards
+  the path, so there is nothing to recover inside the app, and routing belongs
+  to the framework. A test fails any catch-all rewrite whose destination cannot
+  carry the path through.
 - **The site went down without a commit being pushed.** `fastapi` was declared
   in the `web` extra rather than in `[project] dependencies`, which was fine for
   as long as the host installed from `requirements.txt`. Vercel's builder began

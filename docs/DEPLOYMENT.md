@@ -65,7 +65,7 @@ and the framework preset should stay **Other**.
 | File | What it does |
 | --- | --- |
 | `api/index.py` | Exposes the FastAPI app as `app`, puts `src/` on the path, points SQLite at `/tmp` |
-| `vercel.json` | Declares the Python function, rewrites every path to it, sets `COE_SERVERLESS=1` |
+| `vercel.json` | Declares the Python function, its limits, and sets `COE_SERVERLESS=1` |
 | `requirements.txt` | The lean runtime set: FastAPI, Pydantic, python-dotenv |
 | `api/requirements.txt` | The same list, next to the entry point, whichever the builder resolves first |
 | `.vercelignore` | Keeps the venv, tests, databases and docs out of the bundle |
@@ -148,6 +148,14 @@ from a stack trace.
 If the app cannot be built at all, `api/index.py` catches it and serves the
 traceback plus a listing of what is in the build, rather than letting the host
 answer every URL with its own crash page. A dead deployment should say why.
+
+There is no rewrite. There used to be a catch-all sending every path at the
+function, and it worked for as long as the host handed the app the path the
+browser asked for; it now hands over the rewritten one, so the app saw
+`/api/index` for every request and answered its own 404 to all of them. A
+rewrite to a fixed destination cannot be worked around inside the app, because
+the path the request arrived on is gone by the time it gets there. Routing
+belongs to the framework, which is what the host expects here anyway.
 
 Which file the host installs from is not a given. Vercel's builder reads
 `pyproject.toml` when there is one, and switching to it is what took the site

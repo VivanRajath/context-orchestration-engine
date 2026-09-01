@@ -133,12 +133,37 @@ def test_both_requirement_files_say_the_same_thing():
     assert a == b, "the build reads api/requirements.txt; they must not drift"
 
 
-def test_the_build_ships_the_page():
+@pytest.fixture(scope="module")
+def vercel() -> dict:
+    return json.loads((ROOT / "vercel.json").read_text(encoding="utf-8"))
+
+
+def test_the_build_ships_the_page(vercel):
     """includeFiles is the only reason the static tree reaches the function."""
-    config = json.loads((ROOT / "vercel.json").read_text(encoding="utf-8"))
-    include = config["functions"]["api/index.py"]["includeFiles"]
+    include = vercel["functions"]["api/index.py"]["includeFiles"]
     assert include.startswith("src/"), include
     assert include.rstrip("/*").rstrip("/") == "src"
+
+
+def test_no_catch_all_rewrite_collapses_every_path_to_one(vercel):
+    """A rewrite to a fixed destination throws the request away.
+
+    `/(.*)` to `/api/index` existed to send every URL at the function, and it
+    worked for as long as the host handed the app the path the browser asked
+    for. It now hands over the rewritten one, so the app saw `/api/index` for
+    every request and answered its own 404 to all of them, the page included.
+
+    There is no fixing this inside the app: the destination is a single fixed
+    string, so by the time a request arrives the path it came in on is gone.
+    The routing belongs to the framework, which is what the host expects of a
+    backend framework project anyway.
+    """
+    for rule in vercel.get("rewrites", []):
+        source, destination = rule.get("source", ""), rule.get("destination", "")
+        catch_all = source in {"/(.*)", "/(.*)$", "/:path*"}
+        assert not (catch_all and "(" not in destination and ":" not in destination), (
+            f"{source} -> {destination} discards the requested path"
+        )
 
 
 # -- what actually gets installed ------------------------------------------

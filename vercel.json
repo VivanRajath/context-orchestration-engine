@@ -6,12 +6,6 @@
       "includeFiles": "src/**/*"
     }
   },
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/api/index"
-    }
-  ],
   "env": {
     "COE_SERVERLESS": "1"
   }

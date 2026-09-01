@@ -479,7 +479,7 @@ asserts that.
 ## Tests
 
 ```bash
-python -m pytest -q      # 293 tests
+python -m pytest -q      # 294 tests
 ```
 
 Beyond unit coverage, the suite asserts the architectural claims directly:
