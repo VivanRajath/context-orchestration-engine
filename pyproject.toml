@@ -24,19 +24,30 @@ classifiers = [
     "Typing :: Typed",
 ]
 
+# What every entry point needs, and nothing else. A deployment host installs
+# this list, not requirements.txt: Vercel's builder reads pyproject.toml when
+# there is one, which is how a site that had been running for weeks began
+# answering every request with ModuleNotFoundError: No module named 'fastapi'
+# without a commit being pushed. fastapi belonged to an extra at the time.
+#
+# LiteLLM is not here on purpose. It is one lazy import behind a gateway that
+# the standard library already satisfies, and it brings boto3, botocore and
+# aiohttp with it, which is most of a serverless bundle for a code path most
+# people never take. `pip install "context-orchestration-engine[litellm]"`.
 dependencies = [
-    "litellm>=1.63.0",
+    "fastapi>=0.110.0",
     "pydantic>=2.7.0",
-    "rich>=13.7.0",
     "python-dotenv>=1.0.0",
+    "rich>=13.7.0",
 ]
 
 [project.optional-dependencies]
-web = ["fastapi>=0.110.0", "uvicorn[standard]>=0.29.0"]
+litellm = ["litellm>=1.63.0"]
+web = ["uvicorn[standard]>=0.29.0"]
 dev = [
     "pytest>=8.0.0",
     "pyflakes>=3.0.0",
-    "fastapi>=0.110.0",
+    "litellm>=1.63.0",
     "uvicorn[standard]>=0.29.0",
     "httpx>=0.27.0",   # fastapi.testclient
 ]

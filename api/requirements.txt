@@ -1,20 +1,30 @@
 # Dependencies for the deployed web playground.
 #
-# For local work install the package instead - that pulls the full set,
-# LiteLLM included, and puts the `coe` command on your PATH:
+# Read this before editing: your host may not read this file at all. Vercel's
+# builder installs from pyproject.toml when there is one, and the day it began
+# doing so a site that had run for weeks started answering every request with
+# ModuleNotFoundError: No module named 'fastapi', because fastapi was declared
+# in an extra rather than in [project] dependencies. Nothing had been pushed.
+#
+# So pyproject.toml is the authority on what the playground needs, and this
+# file pins the same set for hosts that do read it. A test asserts the two
+# cannot disagree about the web path.
+#
+# For local work install the package instead - that puts the `coe` command on
+# your PATH and adds the test dependencies:
 #
 #     pip install -e ".[dev]"
 #
-# LiteLLM is deliberately absent here. Real model calls on the deployment go
-# through HTTPGateway, which is written on the standard library, so a hosted
-# run needs nothing beyond the three packages below. LiteLLM is imported
-# lazily inside the gateway for anyone who sets COE_GATEWAY=litellm locally.
+# LiteLLM is deliberately absent. Real model calls go through HTTPGateway,
+# which is written on the standard library, so a hosted run needs nothing
+# beyond the four packages below. LiteLLM is an optional extra for anyone who
+# wants its wider provider coverage: COE_GATEWAY=litellm.
 #
-# These are pinned rather than floored. A build host resolves this file
-# against whatever is on the index that morning, so `>=` means the bundle is
-# assembled differently every deploy and a release published overnight can
-# break a site that nobody touched. pyproject.toml keeps the open ranges for
-# people installing the library; a deployment wants the same bytes twice.
+# These are pinned rather than floored. A build host resolves this file against
+# whatever is on the index that morning, so `>=` means the bundle is assembled
+# differently every deploy and a release published overnight can break a site
+# that nobody touched. pyproject.toml keeps the open ranges for people
+# installing the library; a deployment wants the same bytes twice.
 fastapi==0.141.1
 starlette==1.6.0
 pydantic==2.13.4

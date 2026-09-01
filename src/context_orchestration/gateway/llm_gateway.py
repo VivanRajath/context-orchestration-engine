@@ -151,7 +151,9 @@ class LiteLLMGateway:
                 import litellm
             except ImportError as exc:  # pragma: no cover - install-time issue
                 raise GatewayError(
-                    "litellm is not installed. Run: pip install -r requirements.txt"
+                    "litellm is not installed. It is optional: the built-in HTTP "
+                    "gateway needs nothing. Run: "
+                    'pip install "context-orchestration-engine[litellm]"'
                 ) from exc
             litellm.drop_params = self._drop_params
             litellm.suppress_debug_info = True

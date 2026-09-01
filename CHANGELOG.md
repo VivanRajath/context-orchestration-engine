@@ -108,6 +108,21 @@ All notable changes to this project are recorded here. The format follows
 
 ### Fixed
 
+- **The site went down without a commit being pushed.** `fastapi` was declared
+  in the `web` extra rather than in `[project] dependencies`, which was fine for
+  as long as the host installed from `requirements.txt`. Vercel's builder began
+  reading `pyproject.toml` instead, an extra is not a dependency, and every
+  request became `ModuleNotFoundError: No module named 'fastapi'`. The installed
+  set is now what the playground actually needs, `requirements.txt` pins the
+  same set for hosts that read it, and a test derives the requirement from the
+  source: every module-level third-party import has to appear in
+  `[project] dependencies`, and the web path has to be installable from either
+  file. It fails against the declaration that broke the site.
+- **LiteLLM moved to an extra.** It was in the installed set, so a serverless
+  build carried boto3, botocore and aiohttp for a code path taken only by
+  someone who asked for it. The built-in gateway is written on the standard
+  library precisely so this can be a choice:
+  `pip install "context-orchestration-engine[litellm]"`.
 - **The host could not find the application.** Guarding the app's
   construction put `app = ...` inside a `try`, and the host reads this file to
   locate the application rather than importing it, so an indented assignment is
@@ -121,9 +136,12 @@ All notable changes to this project are recorded here. The format follows
   crash page. `check_dir` is off, a missing asset costs the routes that serve
   assets, and the document explains itself instead of throwing. The entry point
   now wraps the whole construction as well: if the app cannot be built, a plain
-  ASGI app serves the traceback and a listing of what actually arrived, because
-  a dead deployment should say why rather than leaving the reason in a log the
-  person looking at the site cannot read.
+  ASGI app serves the traceback, the installed packages and the project's own
+  files, because a dead deployment should say why rather than leaving the reason
+  in a log the person looking at the site cannot read. That page is what found
+  the missing `fastapi`. Its first version listed every file under the root, and
+  the answer was buried under four hundred lines of a vendored boto3; it now
+  reports installed distributions first and skips the vendored tree.
 - Three couplings the single file had hidden, all found by the split: the
   budget widget read a value it never declared, the stage list called a
   function belonging to the card renderer, and the run view wired a control

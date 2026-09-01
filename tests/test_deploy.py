@@ -13,6 +13,7 @@ from __future__ import annotations
 import ast
 import importlib.util
 import json
+import sys
 import re
 from pathlib import Path
 
@@ -138,6 +139,104 @@ def test_the_build_ships_the_page():
     include = config["functions"]["api/index.py"]["includeFiles"]
     assert include.startswith("src/"), include
     assert include.rstrip("/*").rstrip("/") == "src"
+
+
+# -- what actually gets installed ------------------------------------------
+#
+# The site ran for weeks and then answered every request with
+# ModuleNotFoundError: No module named 'fastapi', with nothing pushed. The
+# host had changed which file it installs from: requirements.txt named
+# fastapi, pyproject.toml did not, because fastapi lived in an extra. Both
+# files now have to agree, and these are the tests that make them.
+
+STDLIB = frozenset(sys.stdlib_module_names) | {"__future__"}
+
+# The few places an import name and a distribution name differ.
+DISTRIBUTION = {"dotenv": "python-dotenv", "yaml": "pyyaml", "attr": "attrs"}
+
+
+def module_level_imports(path: Path) -> set[str]:
+    """Top-level import names only.
+
+    An import inside a function is a dependency the package can run without,
+    which is exactly what LiteLLM is: one lazy import behind a gateway the
+    standard library already satisfies.
+    """
+    found = set()
+    for node in ast.parse(path.read_text(encoding="utf-8")).body:
+        if isinstance(node, ast.Import):
+            found |= {alias.name.split(".")[0] for alias in node.names}
+        elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+            found.add(node.module.split(".")[0])
+    return found
+
+
+def third_party(paths) -> set[str]:
+    names = set()
+    for path in paths:
+        names |= module_level_imports(path)
+    names -= STDLIB | {"context_orchestration"}
+    return {DISTRIBUTION.get(name, name) for name in names}
+
+
+@pytest.fixture(scope="module")
+def declared() -> dict:
+    import tomllib
+
+    with (ROOT / "pyproject.toml").open("rb") as handle:
+        project = tomllib.load(handle)["project"]
+    name_of = lambda spec: re.split(r"[<>=!\[;]", spec)[0].strip()
+    return {
+        "core": {name_of(d) for d in project["dependencies"]},
+        "extras": {
+            extra: {name_of(d) for d in specs}
+            for extra, specs in project.get("optional-dependencies", {}).items()
+        },
+    }
+
+
+SOURCE = ROOT / "src" / "context_orchestration"
+
+
+def test_every_module_level_import_is_a_declared_dependency(declared):
+    """An extra is not a dependency. A host installs the list, not the extras."""
+    needed = third_party(SOURCE.rglob("*.py"))
+    missing = needed - declared["core"]
+    assert not missing, (
+        "imported at module level but not in [project] dependencies, so a host "
+        f"installing from pyproject.toml gets ImportError: {sorted(missing)}"
+    )
+
+
+def test_the_web_path_is_installable_from_either_file(declared):
+    """Whichever file the host reads, the playground has to boot.
+
+    The CLI's presentation layer is excluded: it is the one part of the
+    package a deployment never imports.
+    """
+    cli_only = {SOURCE / "cli.py"} | set((SOURCE / "ui").rglob("*.py"))
+    paths = [p for p in SOURCE.rglob("*.py") if p not in cli_only]
+    needed = third_party(paths)
+
+    pinned = {
+        line.split("==")[0].strip()
+        for line in (ROOT / "requirements.txt").read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.startswith("#")
+    }
+    assert needed <= declared["core"], sorted(needed - declared["core"])
+    assert needed <= pinned, sorted(needed - pinned)
+
+
+def test_litellm_stays_out_of_the_installed_set(declared):
+    """It is optional, and it is most of a serverless bundle.
+
+    boto3, botocore and aiohttp arrive with it, for a code path taken only by
+    someone who asked for it with COE_GATEWAY=litellm. The built-in gateway is
+    written on the standard library precisely so this can be a choice.
+    """
+    assert "litellm" not in declared["core"]
+    assert "litellm" in declared["extras"]["litellm"]
+    assert "litellm" in declared["extras"]["dev"], "CI still has to exercise it"
 
 
 # -- the visit count -------------------------------------------------------

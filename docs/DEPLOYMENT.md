@@ -149,6 +149,17 @@ If the app cannot be built at all, `api/index.py` catches it and serves the
 traceback plus a listing of what is in the build, rather than letting the host
 answer every URL with its own crash page. A dead deployment should say why.
 
+Which file the host installs from is not a given. Vercel's builder reads
+`pyproject.toml` when there is one, and switching to it is what took the site
+down: `fastapi` was declared in the `web` extra, an extra is not a dependency,
+and nothing had been pushed. `[project] dependencies` is now the set the
+playground actually needs, `requirements.txt` pins the same set for hosts that
+read that instead, and a test asserts the two cannot disagree.
+
+LiteLLM is not in either. It is one lazy import behind a gateway the standard
+library already satisfies, and it brings boto3, botocore and aiohttp with it.
+`pip install "context-orchestration-engine[litellm]"` for anyone who wants it.
+
 The deploy requirements are pinned rather than floored, for the same reason:
 `>=` resolves against whatever the index holds that morning, so the bundle is
 assembled differently on every deploy and a release published overnight can

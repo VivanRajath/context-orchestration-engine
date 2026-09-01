@@ -40,24 +40,55 @@ sys.path.insert(0, str(ROOT / "src"))
 os.environ.setdefault("COE_SERVERLESS", "1")
 
 
-def _report(failure: str) -> str:
-    """What broke, and what was in the build when it broke.
+def _installed() -> list[str]:
+    try:
+        from importlib.metadata import distributions
 
-    The second half is the useful half. A build is assembled by someone else's
-    packer, so the usual reason something runs on a laptop and not here is
-    that a file did not travel.
+        return sorted(
+            f"{d.metadata['Name']}=={d.version}"
+            for d in distributions()
+            if d.metadata["Name"]
+        )
+    except Exception:  # pragma: no cover - the report must not fail too
+        return []
+
+
+def _own_files() -> list[str]:
+    """The project's own files, which is the part worth reading.
+
+    Not the installed packages' files. The first version of this listed every
+    file under the root and the answer, one missing package, was buried under
+    four hundred lines of a vendored boto3.
     """
-    listing = []
+    skip = (".git/", "node_modules/", "_vendor/", "__pycache__/", "___vc/",
+            ".venv/", "venv/", "dist/", ".pytest_cache/")
+    files = []
     for path in sorted(ROOT.rglob("*")):
         relative = path.relative_to(ROOT).as_posix()
-        if path.is_file() and not relative.startswith((".git/", "node_modules/")):
-            listing.append(relative)
+        if path.is_file() and not relative.startswith(skip) and "__pycache__/" not in relative:
+            files.append(relative)
+    return files
+
+
+def _report(failure: str) -> str:
+    """What broke, and the two things that differ from a laptop.
+
+    A build is assembled by someone else's packer from someone else's index of
+    releases, so it fails for one of two reasons: a file did not travel, or a
+    package was not installed. Both are below, in that order, because the
+    traceback names the symptom and these name the cause.
+    """
+    files = _own_files()
+    packages = _installed()
     return (
         "The engine did not start.\n\n"
         f"python {sys.version.split()[0]}\n"
         f"root   {ROOT}\n\n"
         f"{failure}\n"
-        "Files in this build:\n  " + "\n  ".join(listing[:400])
+        f"Installed packages ({len(packages)}):\n  "
+        + "\n  ".join(packages or ["(none found)"])
+        + f"\n\nProject files in this build ({len(files)}):\n  "
+        + "\n  ".join(files[:200])
     )
 
 
