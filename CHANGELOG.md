@@ -8,6 +8,18 @@ All notable changes to this project are recorded here. The format follows
 
 ### Added
 
+- **What it built, and how to check it.** A panel under the run, holding the
+  artifacts, finished steps and decisions it produced; every worker's turn with
+  the exact briefing it was handed, what it claimed afterwards, and what the
+  reconciler let through or refused; and the whole record as JSON, to copy or
+  download. It is assembled from the event stream rather than fetched
+  afterwards, because a host that freezes an instance the moment a response
+  ends cannot be asked for the same run twice: whatever the panel wants to show
+  has to be carried while the run is still speaking.
+
+  The point is that a reader does not have to believe the summary. Any line in
+  it can be followed back to the worker that produced it and the text that
+  worker actually saw, and the record it is drawn from is right there.
 - **The visit count.** The page says how many people have opened it, counted
   on the server, once per browser session rather than once per page load. It
   is not a row in the run database: that database lives under `/tmp` on a
@@ -108,6 +120,12 @@ All notable changes to this project are recorded here. The format follows
 
 ### Fixed
 
+- **A module that was not JavaScript.** A string quoted with the character it
+  contained parsed as far as the quote and stopped, and one bad module aborts
+  the import of the entry point that pulls in the rest, so the page loaded no
+  behaviour at all. Every test passed: they read the modules with regexes,
+  which a broken file satisfies perfectly well. `tests/test_static.py` now
+  parses each one with `node --check`, and fails on exactly that file.
 - **Every URL answered 404, including the page.** `vercel.json` rewrote
   `/(.*)` to `/api/index` so that every path reached the function. The host
   used to pass the app the path the browser asked for and now passes the

@@ -451,3 +451,78 @@ footer p { color: var(--slate); font-size: .95rem; margin: 0 auto; }
   #playground .step-row textarea { flex: 1 1 8rem; min-width: 0; }
   #playground .step-row .cap { width: 4.6rem; }
 }
+
+
+/* ---------------- What it built ----------------
+   Full width under the three live cards, and hidden until a run has actually
+   finished: a half-written record is not something to invite anyone to check. */
+.c-built { margin-top: 1.35rem; }
+.bt-lead {
+  color: var(--ink-soft); font-size: .95rem; line-height: 1.65;
+  margin: .2rem 0 1.1rem;
+}
+
+.bt-tabs { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: 1.1rem; }
+.bt-tab {
+  padding: .48rem .85rem; border: 1px solid var(--rule); border-radius: 999px;
+  background: transparent; color: var(--slate); cursor: pointer;
+  font-family: var(--f-ui); font-size: .87rem; font-weight: 600;
+}
+.bt-tab:hover { color: var(--ink); border-color: var(--rule-strong); }
+.bt-tab.on { color: var(--kept); border-color: var(--kept); background: var(--kept-bg); }
+.bt-tab:focus-visible { outline: 2px solid var(--kept); outline-offset: 2px; }
+
+.bt-group { margin-bottom: 1.6rem; }
+.bt-head { display: flex; align-items: center; gap: .6rem; margin-bottom: .35rem; }
+.bt-count {
+  font-family: var(--f-mono); font-size: 11px; font-weight: 700; color: var(--slate);
+  background: var(--panel); border-radius: 3px; padding: .1rem .4rem;
+}
+.bt-note { color: var(--slate); font-size: .86rem; line-height: 1.6; margin: 0 0 .6rem; }
+.bt-note .bad { color: var(--dropped); font-weight: 700; }
+.bt-body { display: flex; flex-direction: column; gap: .4rem; }
+
+.bt-item {
+  display: flex; flex-direction: column; gap: .18rem;
+  padding: .6rem .8rem; border: 1px solid var(--rule); border-radius: var(--radius);
+  background: var(--card-bg); font-size: .92rem;
+}
+.bt-item.okv { border-left: 3px solid var(--kept); }
+.bt-what { color: var(--ink); }
+.bt-item .ver { font-size: 10px; color: var(--slate); }
+.bt-item .why { color: var(--ink-soft); font-size: .85rem; }
+.bt-item .who { color: var(--slate); font-size: 11.5px; font-family: var(--f-mono); }
+.bt-body .none { color: var(--slate); font-size: .86rem; }
+.bt-item.flag { border-left: 3px solid var(--dropped); }
+.bt-note.bad-head { margin: .8rem 0 .4rem; }
+
+/* One worker's turn, opened to inspect. Details rather than a hand-rolled
+   toggle: find-in-page reaches inside a closed one in most browsers. */
+.bt-fold {
+  border: 1px solid var(--rule); border-radius: var(--radius);
+  background: var(--card-bg); margin-bottom: .55rem;
+}
+.bt-fold > summary {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: .55rem;
+  padding: .75rem .9rem; cursor: pointer; list-style: none;
+}
+.bt-fold > summary::-webkit-details-marker { display: none; }
+.bt-fold[open] > summary { border-bottom: 1px solid var(--rule); }
+.bt-ft { font-family: var(--f-ui); font-weight: 700; color: var(--ink); }
+.bt-fs { font-family: var(--f-mono); font-size: 11px; color: var(--slate); }
+.bt-fb { padding: .9rem; }
+
+.bt-pre { margin-bottom: .9rem; }
+.bt-pre pre, .bt-raw {
+  margin: .35rem 0 0; padding: .8rem .9rem;
+  background: var(--panel); border: 1px solid var(--rule); border-radius: var(--radius);
+  font-family: var(--f-mono); font-size: 11.5px; line-height: 1.65; color: var(--ink-soft);
+  white-space: pre-wrap; word-break: break-word;
+  max-height: 26rem; overflow: auto;
+}
+.bt-raw { max-height: 34rem; }
+
+.bt-actions {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-bottom: .3rem;
+}
+.bt-meta { color: var(--slate); font-family: var(--f-mono); font-size: 11px; }

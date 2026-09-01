@@ -716,6 +716,38 @@
         </div>
 
       </div>
+
+      <div class="card c-built" id="builtCard" hidden>
+        <div class="card-head"><span class="n">7</span><h3>What it built, and how to check it</h3>
+          <span class="hd" id="builtStatus"></span></div>
+
+        <p class="bt-lead">Everything below came out of the run you just watched. Each item
+          names the worker that produced it, and the second tab has the exact briefing that
+          worker was handed, so any line here can be followed back to where it came from.
+          The third tab is the whole record in the form the engine wrote it, to copy or keep.
+          Artifacts are named by workers and nothing here opens one to check what is inside,
+          which is why every one of them is labelled <span class="mono">unverified</span>.</p>
+
+        <div class="bt-tabs" role="tablist">
+          <button type="button" class="bt-tab on" id="btTabWork" role="tab"
+            aria-selected="true">The work</button>
+          <button type="button" class="bt-tab" id="btTabTrace" role="tab"
+            aria-selected="false">Where each item came from</button>
+          <button type="button" class="bt-tab" id="btTabRaw" role="tab"
+            aria-selected="false">The record itself</button>
+        </div>
+
+        <div id="paneBuilt" class="bt-pane"></div>
+        <div id="paneTrace" class="bt-pane" hidden></div>
+        <div id="paneRaw" class="bt-pane" hidden>
+          <div class="bt-actions">
+            <button type="button" class="btn ghost" id="btCopy">Copy it</button>
+            <button type="button" class="btn ghost" id="btDownload">Download it</button>
+            <span class="bt-meta" id="btMeta"></span>
+          </div>
+          <pre class="bt-raw" id="rawRecord"></pre>
+        </div>
+      </div>
     </div>
 
     <div class="nextup">

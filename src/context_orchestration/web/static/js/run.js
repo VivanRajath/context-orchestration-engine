@@ -6,6 +6,7 @@
    guarantees a second request reaches the instance holding the first. */
 
 import { $, esc } from "./dom.js";
+import { builtRecord, builtReset, builtShow } from "./built.js";
 import { lvEvent, lvReset } from "./live.js";
 import { isMock } from "./setup.js";
 
@@ -36,6 +37,7 @@ function resetRun(label) {
   $("stateStatus").textContent = "running";
   $("dmLive").classList.add("on");
   lvReset();
+  builtReset();
 
   if (ES) { ES.close(); }
   // A mock run empties its queue almost instantly. Rendering is what gets
@@ -144,6 +146,9 @@ function finish() {
 
 function handle(d) {
   lvEvent(d);
+  // Kept whole before anything decides what to draw: an event thrown away
+  // is one the verification panel cannot show anybody afterwards.
+  builtRecord(d);
   if (d.event === "worker_started") { onWorkerStarted(d); }
   else if (d.event === "worker_completed") { onWorkerCompleted(d); }
   else if (d.event === "worker_failed") { onWorkerFailed(d); }
@@ -402,6 +407,7 @@ function onFinished(d) {
   $("runBody").insertAdjacentHTML("beforeend", debrief(d));
   renderState(d.state);
   $("stateStatus").textContent = d.state.status;
+  builtShow();
   finish();
 }
 

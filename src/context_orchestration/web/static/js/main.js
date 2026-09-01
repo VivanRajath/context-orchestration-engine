@@ -5,6 +5,7 @@ import { $, esc } from "./dom.js";
 import { initTheme } from "./theme.js";
 import { initWalkthrough } from "./walkthrough.js";
 import { initBudget } from "./budget.js";
+import { initBuilt } from "./built.js";
 import { initFaq } from "./faq.js";
 import { initVisits } from "./visits.js";
 import { lvReset } from "./live.js";
@@ -20,6 +21,7 @@ initWalkthrough();
 initBudget();
 initFaq();
 initVisits();
+initBuilt();
 initRunView();
 
 // -- controls ---------------------------------------------------------

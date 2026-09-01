@@ -20,6 +20,8 @@ and they assert the structure the split was for:
 from __future__ import annotations
 
 import re
+import shutil
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -297,3 +299,37 @@ def test_the_page_never_invents_the_visit_count():
     assert "/api/visits" in js
     assert "data.durable" in js, "the page would show an undercount as the total"
     assert not re.search(r"Math\.random|\+\+|\* *1000", js), "a made-up number"
+
+
+# -- is it even JavaScript? ------------------------------------------------
+
+
+def test_every_module_is_valid_javascript(modules):
+    """The tests above read the modules with regexes, which a broken file
+    satisfies perfectly well.
+
+    A string quoted with the same character it contains parses as far as the
+    quote and then falls over. That shipped once: every test here passed, and
+    the page loaded nothing at all, because one bad module aborts the import
+    of the entry point that pulls in the rest. Regex parsing cannot see it, so
+    something that actually parses JavaScript has to.
+    """
+    node = shutil.which("node")
+    if not node:  # pragma: no cover - present on CI and in most dev setups
+        pytest.skip("node is needed to parse JavaScript")
+
+    broken = []
+    for name, src in modules.items():
+        # Bytes, not text: the modules are UTF-8 and the default console
+        # encoding on Windows is not.
+        done = subprocess.run(
+            [node, "--input-type=module", "--check"],
+            input=src.encode("utf-8"), capture_output=True,
+        )
+        if done.returncode != 0:
+            stderr = done.stderr.decode("utf-8", "replace")
+            first = next(
+                (ln for ln in stderr.splitlines() if "Error" in ln), "did not parse"
+            )
+            broken.append(f"{name}: {first.strip()}")
+    assert not broken, "these are not valid JavaScript: " + "; ".join(broken)
