@@ -20,6 +20,12 @@ All notable changes to this project are recorded here. The format follows
   The point is that a reader does not have to believe the summary. Any line in
   it can be followed back to the worker that produced it and the text that
   worker actually saw, and the record it is drawn from is right there.
+- **Page views, counted by the host.** One deferred script tag, served from
+  this deployment's own origin, so there is no third-party host in the
+  page's critical path. The published integration installs an npm package and mounts a
+  React component; this page has neither a build step nor React, and the script
+  is what that component loads anyway. It 404s wherever else the app runs,
+  which is why nothing on the page depends on it.
 - **The visit count.** The page says how many people have opened it, counted
   on the server, once per browser session rather than once per page load. It
   is not a row in the run database: that database lives under `/tmp` on a

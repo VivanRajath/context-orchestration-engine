@@ -1157,6 +1157,14 @@
   <span class="visits-l">opened</span>
 </div>
 
+<!-- Vercel's page-view counting. Served from this deployment's own origin by
+     the platform, so there is no third-party host to reach and nothing to
+     install: the published integration wants an npm package and a React
+     component, and this page has neither a build step nor React. It 404s when
+     the site is run anywhere else, which is why it is deferred and why nothing
+     on the page depends on it. -->
+<script defer src="/_vercel/insights/script.js"></script>
+
 <script type="module" src="/static/js/main.js"></script>
 </body>
 </html>

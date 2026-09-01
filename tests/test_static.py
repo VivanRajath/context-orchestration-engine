@@ -48,10 +48,13 @@ def modules() -> dict[str, str]:
 def test_the_page_is_no_longer_one_file(markup):
     """Markup, style and behaviour are separate files, and stay separate."""
     assert "<style>" not in markup, "CSS has crept back into the document"
-    # One script tag, the module entry point. Plus the inline theme guard,
-    # which must stay inline: a module is deferred and would flash.
-    assert markup.count("<script") == 2
+    # Three, and each one has to justify itself: the module entry point, the
+    # inline theme guard, which must stay inline because a module is deferred
+    # and the page would flash the wrong theme, and the host's page-view
+    # counter. Anything beyond these belongs in a module.
+    assert markup.count("<script") == 3
     assert '<script type="module" src="/static/js/main.js"></script>' in markup
+    assert '<script defer src="/_vercel/insights/script.js"></script>' in markup
     assert len(markup.splitlines()) < 1500
 
 
@@ -333,3 +336,23 @@ def test_every_module_is_valid_javascript(modules):
             )
             broken.append(f"{name}: {first.strip()}")
     assert not broken, "these are not valid JavaScript: " + "; ".join(broken)
+
+
+def test_the_analytics_script_cannot_break_the_page(markup):
+    """It is the host's, it is optional, and it must stay that way.
+
+    Served from this deployment's own origin, so there is no third-party host
+    in the page's critical path, and it 404s anywhere else the app runs. Both
+    reasons it is deferred and nothing imports from it: the page has to work
+    identically with that request failing, which is what happens every time
+    anyone runs `coe serve`.
+    """
+    tag = '<script defer src="/_vercel/insights/script.js"></script>'
+    assert tag in markup
+    assert "vercel-insights.com" not in markup, "that would be a third-party origin"
+
+    modules = (JS).glob("*.js")
+    for path in modules:
+        assert "insights" not in path.read_text(encoding="utf-8"), (
+            f"{path.name} depends on the analytics script"
+        )
