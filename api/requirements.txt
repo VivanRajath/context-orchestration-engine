@@ -5,10 +5,17 @@
 #
 #     pip install -e ".[dev]"
 #
-# LiteLLM is deliberately absent here. The hosted playground runs the mock
-# gateway only (COE_SERVERLESS closes live model calls), and LiteLLM's
-# dependency tree is most of a serverless bundle on its own. It is imported
-# lazily inside the gateway, so nothing above it notices.
-fastapi>=0.110.0
-pydantic>=2.7.0
-python-dotenv>=1.0.0
+# LiteLLM is deliberately absent here. Real model calls on the deployment go
+# through HTTPGateway, which is written on the standard library, so a hosted
+# run needs nothing beyond the three packages below. LiteLLM is imported
+# lazily inside the gateway for anyone who sets COE_GATEWAY=litellm locally.
+#
+# These are pinned rather than floored. A build host resolves this file
+# against whatever is on the index that morning, so `>=` means the bundle is
+# assembled differently every deploy and a release published overnight can
+# break a site that nobody touched. pyproject.toml keeps the open ranges for
+# people installing the library; a deployment wants the same bytes twice.
+fastapi==0.141.1
+starlette==1.6.0
+pydantic==2.13.4
+python-dotenv==1.2.3

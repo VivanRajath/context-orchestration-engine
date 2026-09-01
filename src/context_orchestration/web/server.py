@@ -541,7 +541,13 @@ def create_app(workers_path: str | Path | None = None, db: str = "playground.db"
     # nothing to keep in sync with the engine. The browser resolves the
     # imports itself, so these files are served exactly as they are written.
 
-    app.mount("/static", StaticFiles(directory=STATIC), name="static")
+    # check_dir is off deliberately. StaticFiles raises when the directory
+    # is absent, and this runs while the module is being imported, so on a
+    # host that builds its own bundle a single missing file stops the whole
+    # deployment from starting rather than making one asset 404. A page with
+    # no stylesheet is a bad afternoon; a site that will not boot is a
+    # weekend. /api/health says which files actually arrived.
+    app.mount("/static", StaticFiles(directory=STATIC, check_dir=False), name="static")
 
     @app.get("/", include_in_schema=False)
     def index() -> FileResponse:
@@ -549,10 +555,62 @@ def create_app(workers_path: str | Path | None = None, db: str = "playground.db"
         # against a fresh engine is a confusing way to lose an afternoon. The
         # assets under /static revalidate by ETag instead, which is what
         # StaticFiles does on its own.
+        page = STATIC / "index.html"
+        if not page.is_file():
+            raise HTTPException(
+                503,
+                "The page is not in this build. The engine is running, but the "
+                "files under web/static did not travel with it - see /api/health.",
+            )
         return FileResponse(
-            STATIC / "index.html",
+            page,
             headers={"Cache-Control": "no-store, must-revalidate"},
         )
+
+    # -- health ---------------------------------------------------------
+
+    @app.get("/api/health", include_in_schema=False)
+    def health() -> dict:
+        """What this instance actually is, from inside it.
+
+        Written after a deployment answered every request with a crash page
+        and no way to ask why. A hosted build is assembled by someone else's
+        packer from someone else's index of releases, so the two things that
+        differ from a laptop are which files arrived and which versions were
+        installed. Both are below. Nothing here is a secret: the pool reports
+        a count and a vendor, never a key.
+        """
+        import sys
+
+        def version(name: str) -> str:
+            try:
+                from importlib.metadata import version as v
+
+                return v(name)
+            except Exception:  # pragma: no cover - a missing package is the answer
+                return "absent"
+
+        assets = sorted(
+            str(p.relative_to(STATIC)).replace("\\", "/")
+            for p in STATIC.rglob("*")
+            if p.is_file()
+        ) if STATIC.is_dir() else []
+
+        return {
+            "ok": bool(assets) and (STATIC / "index.html").is_file(),
+            "python": sys.version.split()[0],
+            "packages": {
+                name: version(name)
+                for name in ("fastapi", "starlette", "pydantic", "python-dotenv")
+            },
+            "static_dir": str(STATIC),
+            "static_dir_exists": STATIC.is_dir(),
+            "assets": assets,
+            "serverless": serverless(),
+            "live_enabled": live_enabled(),
+            "pool": pool_info(),
+            "db": db,
+        }
 
     # -- config ---------------------------------------------------------
 
