@@ -10,6 +10,7 @@ imported is not a failed request, it is a deployment with nothing to call.
 
 from __future__ import annotations
 
+import ast
 import importlib.util
 import json
 import re
@@ -63,6 +64,26 @@ def test_the_app_starts_even_with_no_page_to_serve(tmp_path, monkeypatch):
     # The engine is still there, which is the point of not dying.
     assert client.get("/api/config").status_code == 200
     assert client.get("/api/health").json()["ok"] is False
+
+
+def test_the_host_can_find_the_app_without_importing_the_file():
+    """`app` has to be assigned at the top level, and this is how it is read.
+
+    The host locates the application by parsing this file rather than by
+    importing it, so an `app` indented inside a `try` is an `app` it cannot
+    see. Wrapping the construction in one, to keep a broken build from
+    answering every URL with a crash page, is what broke the build itself:
+    "Found main.py, api/index.py but none define a top-level app".
+    """
+    tree = ast.parse((ROOT / "api" / "index.py").read_text(encoding="utf-8"))
+    top_level = [
+        target.id
+        for node in tree.body
+        if isinstance(node, ast.Assign)
+        for target in node.targets
+        if isinstance(target, ast.Name)
+    ]
+    assert "app" in top_level, "the host will not find the application"
 
 
 def test_a_broken_boot_answers_with_the_reason(monkeypatch):

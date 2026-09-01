@@ -108,6 +108,12 @@ All notable changes to this project are recorded here. The format follows
 
 ### Fixed
 
+- **The host could not find the application.** Guarding the app's
+  construction put `app = ...` inside a `try`, and the host reads this file to
+  locate the application rather than importing it, so an indented assignment is
+  one it cannot see: `Found main.py, api/index.py but none define a top-level
+  app`. The guard now lives in a function and the assignment is back at the top
+  level, checked by parsing the file the same way the host does.
 - **One missing file could take the whole deployment down.** `StaticFiles`
   checks its directory in the constructor, and the constructor runs while the
   module is being imported, so a build that did not carry `web/static` did not

@@ -14,12 +14,17 @@ to it (see ``vercel.json``). Two things differ from ``coe serve``:
 single-request streaming path and closes live model calls. Set
 ``COE_ALLOW_LIVE=1`` on a private deployment that carries its own keys.
 
-Building the app is wrapped, because this module runs during the import that
-the host performs before it will serve anything at all. An exception here is
-not a failed request, it is a dead deployment: the host has nothing to call,
-so every URL returns its own crash page and the reason lives in a log the
-person looking at the site cannot see. The fallback below turns that into a
-page that says what broke.
+Building the app is guarded, because this module runs during the import the
+host performs before it will serve anything at all. An exception here is not a
+failed request, it is a deployment with nothing to call: every URL returns the
+host's own crash page and the reason lives in a log the person looking at the
+site cannot see. So a failure produces a page that says what broke instead.
+
+The guard lives in a function, and ``app`` is assigned at the bottom of this
+file at the top level. That placement is load-bearing rather than stylistic:
+the host finds the application by reading this file, not by importing it, so
+an ``app`` indented inside a ``try`` is an ``app`` it cannot see, and the build
+fails with "none define a top-level app".
 """
 
 from __future__ import annotations
@@ -34,32 +39,35 @@ sys.path.insert(0, str(ROOT / "src"))
 
 os.environ.setdefault("COE_SERVERLESS", "1")
 
-try:
-    from context_orchestration.web.server import create_app
 
-    app = create_app(db=os.environ.get("COE_DB", "/tmp/playground.db"))
-except Exception:  # pragma: no cover - exercised only by a broken build
-    FAILURE = traceback.format_exc()
+def _report(failure: str) -> str:
+    """What broke, and what was in the build when it broke.
 
-    def _report() -> str:
-        listing = []
-        for path in sorted(ROOT.rglob("*")):
-            rel = path.relative_to(ROOT).as_posix()
-            if path.is_file() and not rel.startswith((".git/", "node_modules/")):
-                listing.append(rel)
-        return (
-            "The engine did not start.\n\n"
-            f"python {sys.version.split()[0]}\n"
-            f"root   {ROOT}\n\n"
-            f"{FAILURE}\n"
-            "Files in this build:\n  " + "\n  ".join(listing[:400])
-        )
+    The second half is the useful half. A build is assembled by someone else's
+    packer, so the usual reason something runs on a laptop and not here is
+    that a file did not travel.
+    """
+    listing = []
+    for path in sorted(ROOT.rglob("*")):
+        relative = path.relative_to(ROOT).as_posix()
+        if path.is_file() and not relative.startswith((".git/", "node_modules/")):
+            listing.append(relative)
+    return (
+        "The engine did not start.\n\n"
+        f"python {sys.version.split()[0]}\n"
+        f"root   {ROOT}\n\n"
+        f"{failure}\n"
+        "Files in this build:\n  " + "\n  ".join(listing[:400])
+    )
 
-    async def app(scope, receive, send):  # type: ignore[misc]
-        """A last-resort ASGI app: one plain-text page, every path, no imports."""
+
+def _broken(failure: str):
+    """A last-resort ASGI app: one plain-text page, every path, no imports."""
+    body = _report(failure).encode("utf-8")
+
+    async def application(scope, receive, send):
         if scope["type"] != "http":
             return
-        body = _report().encode("utf-8")
         await send(
             {
                 "type": "http.response.start",
@@ -71,3 +79,17 @@ except Exception:  # pragma: no cover - exercised only by a broken build
             }
         )
         await send({"type": "http.response.body", "body": body})
+
+    return application
+
+
+def _build():
+    try:
+        from context_orchestration.web.server import create_app
+
+        return create_app(db=os.environ.get("COE_DB", "/tmp/playground.db"))
+    except Exception:  # pragma: no cover - exercised only by a broken build
+        return _broken(traceback.format_exc())
+
+
+app = _build()
